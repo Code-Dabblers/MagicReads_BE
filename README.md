@@ -13,3 +13,9 @@ To run this project in your local environment follow the steps below:-
 3. Run `npm run dev` in the terminal to run the server.
 
 And you are good to go!
+
+
+# Thank you all for contributing  :relaxed:.
+
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
