@@ -10,6 +10,6 @@ To run this project in your local environment follow the steps below:-
 
 2. Run `npm i` to install all the dependencies.
 
-3. Run `node server` in the terminal to launch the live server.
+3. Run `npm run dev` in the terminal to run the server.
 
 And you are good to go!
