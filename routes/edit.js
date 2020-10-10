@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 // @desc Landing page
-// @route GET /
-// @access Public
+// @route GET /edit
+// @access Private
 router.get("/", (req, res) => {
-  res.send("it works");
+  res.send("it edit time");
 });
 
 module.exports = router;

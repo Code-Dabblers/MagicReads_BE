@@ -22,10 +22,20 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, "/public")));
 
+// Cache Fix
+app.disable("etag");
+
 // Logging
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
+
+app.use("/", require("./routes/index.js"));
+app.use("/user", require("./routes/user.js"));
+app.use("/search", require("./routes/search.js"));
+app.use("/storyname", require("./routes/storyname.js"));
+app.use("/create", require("./routes/create.js"));
+app.use("/edit", require("./routes/edit.js"));
 
 const PORT = process.env.PORT || 3000;
 
