@@ -45,9 +45,11 @@ User: {
     storyName: {
       chapters: {
         chapter1: {
+          partId: number;
           comments: ["shit", "blah"];
         }
         chapter2: {
+          partId: number;
           comments: ["shit", "blah"];
         }
       }
