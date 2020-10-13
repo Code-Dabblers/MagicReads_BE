@@ -11,7 +11,26 @@ const nanoid = customAlphabet("1234567890abcdef", 10);
 // @access Public
 router.post("/", async (req, res) => {
   try {
+    await Story.create(req.body);
     res.send("it works");
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.post("/user", async (req, res) => {
+  try {
+    await User.create(req.body);
+    res.send("it works");
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.post("/chapter", async (req, res) => {
+  try {
+    await Chapter.create(req.body);
+    res.send("it works for chapter");
   } catch (err) {
     console.log(err);
   }

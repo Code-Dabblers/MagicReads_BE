@@ -3,15 +3,15 @@ let { customAlphabet } = require("nanoid");
 const nanoid = customAlphabet("1234567890abcdef", 10);
 
 const storySchema = new mongoose.Schema({
-  storyId: { type: String, required: true },
+  _id: { type: String, default: () => nanoid() },
   storyName: { type: String, required: true },
   tags: [{ type: String }],
-  totalChapters: { type: Number, required: true },
-  voteCount: { type: Number, required: true },
-  cover: { type: String, required: true },
+  totalChapters: { type: Number, default: 0 },
+  voteCount: { type: Number, default: 0 },
+  cover: { type: String },
   genre: { type: String, required: true },
-  visiblity: { type: Boolean, required: true },
-  chapters: [{ _id: String }],
+  visibility: { type: String, required: true },
+  chapters: [{ chapterId: { type: String, ref: "Chapter" } }],
   author: {
     username: { type: String, required: true },
     userId: { type: String, required: true },

@@ -6,7 +6,7 @@ const chapterSchema = new mongoose.Schema({
   _id: { type: String, required: true, default: () => nanoid() },
   storyId: { type: String, required: true },
   chapterTitle: { type: String, required: true },
-  chapterCover: { type: String, required: true },
+  chapterCover: { type: String },
   chapter: { type: String, required: true },
   comments: [
     {
@@ -17,8 +17,8 @@ const chapterSchema = new mongoose.Schema({
     },
   ],
   author: {
-    username: { type: String },
-    userId: { type: String },
+    username: { type: String, required: true },
+    userId: { type: String, required: true },
   },
 });
 
