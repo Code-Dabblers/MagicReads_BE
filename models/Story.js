@@ -11,7 +11,9 @@ const storySchema = new mongoose.Schema({
   cover: { type: String },
   genre: { type: String, required: true },
   visibility: { type: String, required: true },
-  chapters: [{ chapterId: { type: String, ref: "Chapter" } }],
+  chapters: [
+    { _id: { type: String, ref: "Chapter", default: () => nanoid() } },
+  ],
   author: {
     username: { type: String, required: true },
     userId: { type: String, required: true },
