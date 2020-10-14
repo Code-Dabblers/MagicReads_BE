@@ -6,15 +6,16 @@ const methodOverride = require("method-override");
 const dotenv = require("dotenv");
 
 // Auth and DB Includes
-const mongoose = require("mongoose");
+const passport = require("passport");
 const connectDB = require("./config/db");
-const session = require("express-session");
-const MongoStore = require("connect-mongo")(session);
 const flash = require("connect-flash");
 const cookieParser = require("cookie-parser");
 
 // Load Config
 dotenv.config({ path: "./config/config.env" });
+
+// Passport config
+require("./config/passport")(passport);
 
 // Database Connected
 connectDB();
@@ -48,15 +49,8 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-// Sessions
-app.use(
-  session({
-    secret: "reading is love",
-    resave: false,
-    saveUninitialized: false,
-    store: new MongoStore({ mongooseConnection: mongoose.connection }),
-  })
-);
+// Passport middleware
+app.use(passport.initialize());
 
 // cookie middleware
 app.use(cookieParser());
@@ -73,7 +67,7 @@ app.use(function (req, res, next) {
 app.use("/", require("./routes/index.js"));
 app.use("/user", require("./routes/user.js"));
 app.use("/search", require("./routes/search.js"));
-app.use("/storyname", require("./routes/storyname.js"));
+app.use("/storyname", require("./routes/story.js"));
 app.use("/create", require("./routes/create.js"));
 app.use("/edit", require("./routes/edit.js"));
 
