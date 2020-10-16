@@ -21,10 +21,7 @@ router.post("/", async (req, res) => {
 router.post("/:user", async (req, res) => {
   try {
     await Story.create(req.body, async function (err, story) {
-      await User.updateOne(
-        { _id: req.params.user },
-        { $push: { myStories: { _id: story._id } } }
-      );
+      await User.updateOne({ _id: req.params.user }, { $push: { myStories: { _id: story._id } } });
     });
     res.send("it works");
   } catch (err) {
@@ -44,10 +41,7 @@ router.post("/user", async (req, res) => {
 router.post("/chapter", async (req, res) => {
   try {
     await Chapter.create(req.body, async function (err, c) {
-      await Story.updateOne(
-        { _id: c.storyId },
-        { $push: { chapters: { _id: c._id } } }
-      );
+      await Story.updateOne({ _id: c.storyId }, { $push: { chapters: { _id: c._id } } });
     });
     res.send("it works");
   } catch (err) {

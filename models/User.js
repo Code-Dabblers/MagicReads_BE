@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
+    unique: true,
+    dropDups: true,
   },
   firstName: {
     type: String,
@@ -19,12 +21,19 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  password: {
+    min: 6,
+    type: String,
+    required: true,
+  },
   bio: {
     type: String,
   },
   email: {
     type: String,
     required: true,
+    unique: true,
+    dropDups: true,
   },
   readingList: [{ storyId: { type: String, ref: "Story" } }],
   library: [{ storyId: { type: String, ref: "Story" } }],
