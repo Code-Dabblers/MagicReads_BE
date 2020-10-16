@@ -15,7 +15,7 @@ const cookieParser = require("cookie-parser");
 dotenv.config({ path: "./config/config.env" });
 
 // Passport config
-require("./config/passport")(passport);
+require("./config/passport");
 
 // Database Connected
 connectDB();
@@ -77,7 +77,5 @@ const PORT = process.env.PORT || 3000; // add that file
 // Server Listening
 app.listen(
   PORT,
-  console.log(
-    `MagicReads is running in ${process.env.NODE_ENV} mode on server ${PORT}`
-  )
+  console.log(`MagicReads is running in ${process.env.NODE_ENV} mode on server ${PORT}`)
 );
