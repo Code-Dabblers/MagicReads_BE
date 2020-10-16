@@ -58,10 +58,9 @@ router.post("/register", (req, res) => {
 // @route POST /user/login
 // @access Public
 router.post("/login", (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
-        if (err) {
-            console.log(err);
-        }
+    passport.authenticate("local", { session: false }, (err, user, info) => {
+        if (err) throw err;
+
         if (info != undefined) {
             console.log(info.message);
             res.send(info.message);

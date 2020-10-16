@@ -32,13 +32,13 @@ app.use(express.json());
 
 // Method override used for PUT or DELETE requests
 app.use(
-  methodOverride(function (req, res) {
-    if (req.body && typeof req.body === "object" && "_method" in req.body) {
-      let method = req.body._method;
-      delete req.body._method;
-      return method;
-    }
-  })
+    methodOverride(function (req, res) {
+        if (req.body && typeof req.body === "object" && "_method" in req.body) {
+            let method = req.body._method;
+            delete req.body._method;
+            return method;
+        }
+    })
 );
 
 // Static folder
@@ -46,7 +46,7 @@ app.use(express.static(path.join(__dirname, "/public")));
 
 // Logging
 if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
+    app.use(morgan("dev"));
 }
 
 // Passport middleware
@@ -60,8 +60,8 @@ app.use(flash());
 
 // Set Global variables
 app.use(function (req, res, next) {
-  res.locals.user = req.user || null;
-  next();
+    res.locals.user = req.user || null;
+    next();
 });
 
 app.use("/", require("./routes/index.js"));
@@ -72,10 +72,12 @@ app.use("/create", require("./routes/create.js"));
 app.use("/edit", require("./routes/edit.js"));
 
 // Port
-const PORT = process.env.PORT || 3000; // add that file
+const PORT = process.env.PORT || 8000; // add that file
 
 // Server Listening
 app.listen(
-  PORT,
-  console.log(`MagicReads is running in ${process.env.NODE_ENV} mode on server ${PORT}`)
+    PORT,
+    console.log(
+        `MagicReads is running in ${process.env.NODE_ENV} mode on server ${PORT}`
+    )
 );
