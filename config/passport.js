@@ -1,7 +1,5 @@
 const bcrypt = require("bcrypt");
 
-const BCRYPT_SALT_ROUNDS = 12;
-
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 const User = require("../models/User");

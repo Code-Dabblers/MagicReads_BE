@@ -42,15 +42,27 @@ router.post("/register", (req, res) => {
                                     { _id: user._id },
                                     process.env.JWT_SECRET
                                 );
-                                res.status(200).send({ token: token });
+                                console.log("user created");
+                                res.status(201).send({
+                                    token: token,
+                                    message: "User registration successful!",
+                                });
                             })
-                            .catch((err) => console.log(err));
-                        console.log("user created");
+                            .catch((error) =>
+                                res.status(500).send({
+                                    message: "Internal server error",
+                                    error,
+                                })
+                            );
                     });
             }
         })
-        .catch((err) => {
-            console.log(err);
+        .catch((error) => {
+            console.log(error);
+            res.status(500).send({
+                message: "Internal server error",
+                error,
+            });
         });
 });
 
@@ -66,6 +78,8 @@ router.post("/login", (req, res, next) => {
             res.send(info.message);
         } else {
             req.logIn(user, (err) => {
+                if (err) throw err;
+
                 User.findOne({ email: user.email }).then((user) => {
                     const token = jwt.sign(
                         { _id: user._id },
@@ -82,9 +96,41 @@ router.post("/login", (req, res, next) => {
     })(req, res, next);
 });
 
+// @desc User Reading List
+// @route GET /user/readingList
+// @access Private
+router.get("/readingList", (req, res) => {
+    res.send(
+        "User will have an array of id's of stories in their readingList array in db, fetch them and send them as response"
+    );
+});
+
+// @desc User Library
+// @route GET /user/library
+// @access Private
+router.get("/library", (req, res) => {
+    res.send(
+        "User will have an array of id's of stories in their library array in db, fetch them and send them as response"
+    );
+});
+
+// @desc User Settings
+// @route GET /user/settings
+// @access Private
+router.get("/settings", (req, res) => {
+    res.send("Send user info except password");
+});
+
+// @desc User Settings
+// @route PUT /user/settings
+// @access Private
+router.put("/settings", (req, res) => {
+    res.send("Update user and redirect to settings page with updated info");
+});
+
 // @desc Logout page
-// @route POST /user/logout
-// @access Public
+// @route GET /user/logout
+// @access Private
 router.get("/logout", (req, res) => {
     req.logout();
     res.send("User Logged Out");

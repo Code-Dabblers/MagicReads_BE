@@ -72,7 +72,7 @@ app.use("/create", require("./routes/create.js"));
 app.use("/edit", require("./routes/edit.js"));
 
 // Port
-const PORT = process.env.PORT || 8000; // add that file
+const PORT = process.env.PORT || 8000;
 
 // Server Listening
 app.listen(
