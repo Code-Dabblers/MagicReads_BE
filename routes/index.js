@@ -16,6 +16,20 @@ router.post("/", async (req, res) => {
     }
 });
 
+// Some code I tried to test that all connections are connected and we can add stories, chapters and comments. By no means this is the code which can be used as I used random routes just to know if the API will work, you can refer to this code although.
+
+// router.get(
+//     "/user",
+//     passport.authenticate("jwt", { session: false }),
+//     async (req, res) => {
+//         try {
+//             res.send(req.user);
+//         } catch (err) {
+//             console.log(err);
+//         }
+//     }
+// );
+
 // router.post("/:user", async (req, res) => {
 //     try {
 //         await Story.create(req.body, async function (err, story) {
@@ -29,18 +43,6 @@ router.post("/", async (req, res) => {
 //         console.log(err);
 //     }
 // });
-
-router.get(
-    "/user",
-    passport.authenticate("jwt", { session: false }),
-    async (req, res) => {
-        try {
-            res.send(req.user);
-        } catch (err) {
-            console.log(err);
-        }
-    }
-);
 
 // router.post("/chapter", async (req, res) => {
 //     try {

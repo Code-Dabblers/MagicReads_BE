@@ -29,4 +29,11 @@ router.put("/:storyId/chapter/:chapterId/comment", (req, res) => {
   res.send("update the comment data in chapter model of the story");
 });
 
+// @desc Delete comment on a chapter
+// @route PUT /story/:storyId/chapter/:chapterId/comment/:commentId
+// @access Private
+router.delete("/:storyId/chapter/:chapterId/comment/:commentId", (req, res) => {
+  res.send("delete the comment data in chapter model of the story");
+});
+
 module.exports = router;
