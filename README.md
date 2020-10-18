@@ -1,7 +1,17 @@
 # MagicReads_BE
 
-MagicReads is a webapp for those who love to read and write and share their stories with the world. This repo is for the Backend of the app.
-This is the open source project feel free to contribute.
+MagicReads is a web app for those who love to read and write and share their stories with the world. This repo is for the Backend of the app.
+This is an open-source project feel free to contribute.
+
+## Config Setup
+
+### Create `config.env` inside the `config` folder and add the following keys.
+
+```
+PORT = XXXX
+MONGO_URI = XXXX
+JWT_SECRET =  XXXX
+```
 
 ## Getting Started
 
@@ -17,7 +27,7 @@ And you are good to go!
 
 # Thank you all for contributing :relaxed:.
 
-<!-- readme: contributors -start --> 
+<!-- readme: contributors -start -->
 <table>
 <tr>
     <td align="center">
