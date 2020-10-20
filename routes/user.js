@@ -141,7 +141,6 @@ router.put("/settings", (req, res) => {
 // @route GET /user/logout
 // @access Private
 router.get("/logout", (req, res) => {
-    req.logout();
     res.send("User Logged Out");
 });
 

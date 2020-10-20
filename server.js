@@ -67,10 +67,12 @@ app.use(function (req, res, next) {
     next();
 });
 
+
+// Routes
 app.use("/", require("./routes/index.js"));
 app.use("/user", require("./routes/user.js"));
 app.use("/search", require("./routes/search.js"));
-app.use("/storyname", require("./routes/story.js"));
+app.use("/story", require("./routes/story.js"));
 app.use("/create", require("./routes/create.js"));
 app.use("/edit", require("./routes/edit.js"));
 
