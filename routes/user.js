@@ -1,7 +1,6 @@
 const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const passport = require("../config/passport");
 const bcrypt = require("bcrypt");
 
 const BCRYPT_SALT_ROUNDS = 12;
@@ -25,17 +24,21 @@ router.post("/register", (req, res) => {
         .then((user) => {
             if (user) {
                 console.log("email already taken");
-                res.send("user exists already");
+                res.setHeader("Content-Type", "application/json");
+                res.status(201).send({
+                    auth: false,
+                    data: "user exists already",
+                });
             } else {
                 bcrypt
                     .hash(password, BCRYPT_SALT_ROUNDS)
                     .then((hashedPassword) => {
                         User.create({
-                            username: username,
+                            username,
                             password: hashedPassword,
-                            email: email,
-                            firstName: firstName,
-                            lastName: lastName,
+                            email,
+                            firstName,
+                            lastName,
                         })
                             .then((user) => {
                                 const token = jwt.sign(
@@ -43,7 +46,8 @@ router.post("/register", (req, res) => {
                                     process.env.JWT_SECRET
                                 );
                                 console.log("user created");
-                                res.status(201).send({
+                                res.status(200).send({
+                                    auth: true,
                                     token: token,
                                     message: "User registration successful!",
                                 });
@@ -69,18 +73,19 @@ router.post("/register", (req, res) => {
 // @desc Login page
 // @route POST /user/login
 // @access Public
-router.post("/login", (req, res, next) => {
-    passport.authenticate("local", { session: false }, (err, user, info) => {
-        if (err) throw err;
-
-        if (info != undefined) {
-            console.log(info.message);
-            res.send(info.message);
-        } else {
-            req.logIn(user, (err) => {
+router.post("/login", (req, res) => {
+    const { email, password } = req.body;
+    User.findOne({ email: email })
+        .then((user) => {
+            if (user === null) {
+                res.send({
+                    message: "That email is not registered.",
+                });
+            }
+            bcrypt.compare(password, user.password, (err, isMatch) => {
                 if (err) throw err;
 
-                User.findOne({ email: user.email }).then((user) => {
+                if (isMatch) {
                     const token = jwt.sign(
                         { _id: user._id },
                         process.env.JWT_SECRET
@@ -90,10 +95,14 @@ router.post("/login", (req, res, next) => {
                         token: token,
                         message: "User found & logged in",
                     });
-                });
+                } else {
+                    res.send({
+                        message: "Incorrect Password",
+                    });
+                }
             });
-        }
-    })(req, res, next);
+        })
+        .catch((err) => res.send("user not found", err));
 });
 
 // @desc User Reading List

@@ -3,6 +3,7 @@ const path = require("path");
 const express = require("express");
 const morgan = require("morgan");
 const methodOverride = require("method-override");
+const cors = require("cors");
 const dotenv = require("dotenv");
 
 // Auth and DB Includes
@@ -22,6 +23,8 @@ connectDB();
 
 // Initialize App
 const app = express();
+
+app.use(cors());
 
 // Cache Fix
 app.disable("etag");
