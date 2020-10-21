@@ -7,7 +7,7 @@ Describe the big picture of your changes here to communicate to the maintainers 
 
 ## Types of changes
 
-What types of changes does your code introduce to Appium?
+What types of changes does your code introduce to App?
 _Put an `x` in the boxes that apply_
 
 - [ ] Bugfix (non-breaking change which fixes an issue)
@@ -21,7 +21,6 @@ _Put an `x` in the boxes that apply. You can also fill these out after creating 
 
 - [ ] I have read the [CONTRIBUTING](https://github.com/Code-Dabblers/MagicReads_BE/blob/main/CONTRIBUTION.md) doc
 - [ ] I have added the issue number in the description
-- [ ] I have selected MagicReads from Organizations in the Projects.
 - [ ] I have added necessary documentation (if appropriate)
 
 ## Further comments

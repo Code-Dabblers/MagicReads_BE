@@ -9,9 +9,9 @@ router.post("/", (req, res) => {
 });
 
 // @desc Publish a chapter
-// @route POST /create/story/:storyId
+// @route POST /create/story/:storyId/chapter
 // @access Private
-router.post("/:storyId/chapter/:chapterId", (req, res) => {
+router.post("/:storyId/chapter", (req, res) => {
   res.send("Create a chapter and push it into Chapter data collection");
 });
 
