@@ -102,7 +102,9 @@ router.post("/login", (req, res) => {
                 }
             });
         })
-        .catch((err) => res.send("user not found", err));
+        .catch((error) =>
+            res.status(500).send({ error, message: "Internal Server Error" })
+        );
 });
 
 // @desc User Reading List
