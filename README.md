@@ -27,7 +27,7 @@ And you are good to go!
 
 # Thank you all for contributing :relaxed:.
 
-<!-- readme: contributors -start -->
+<!-- readme: contributors -start --> 
 <table>
 <tr>
     <td align="center">
