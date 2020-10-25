@@ -5,7 +5,20 @@ const router = express.Router();
 // @route POST /create
 // @access Private
 router.post("/", (req, res) => {
-  res.send("it should take book details"); // this should return back a storyID which will be used to create the chapter 
+  router.post("/", async(req, res) => {
+    try {
+              await Story.create(req.body, async function (err, story) {
+                  await User.updateOne(
+                      { _id: req.params.user },
+                      { $push: { myStories: { _id: story._id } } }
+                  );
+              });
+              res.send("Story Created");
+          } catch (err) {
+              console.log(err);
+          }
+     // this should return back a storyID which will be used to create the chapter 
+  });
 });
 
 // @desc Publish a chapter
