@@ -40,22 +40,22 @@ router.put("/:storyId/vote", (req, res) => {
 // @desc Chapter of the Story
 // @route GET /story/:storyId/chapter/:chapterId
 // @access Public
-router.get('/:storyId/chapter/:chapterId', (req, res) => {
-	res.send('fetch story details with that id');
+router.get("/:storyId/chapter/:chapterId", (req, res) => {
+	res.send("fetch story details with that id");
 });
 
 // @desc Add comment on a chapter
 // @route PUT /story/:storyId/chapter/:chapterId/comment
 // @access Private
-router.put('/:storyId/chapter/:chapterId/comment', (req, res) => {
-	res.send('update the comment data in chapter model of the story');
+router.put("/:storyId/chapter/:chapterId/comment", (req, res) => {
+	res.send("update the comment data in chapter model of the story");
 });
 
 // @desc Delete comment on a chapter
 // @route PUT /story/:storyId/chapter/:chapterId/comment/:commentId
 // @access Private
-router.delete('/:storyId/chapter/:chapterId/comment/:commentId', (req, res) => {
-	res.send('delete the comment data in chapter model of the story');
+router.delete("/:storyId/chapter/:chapterId/comment/:commentId", (req, res) => {
+	res.send("delete the comment data in chapter model of the story");
 });
 
 module.exports = router;
