@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const Story = require('../models/Story');
 
@@ -41,21 +41,21 @@ router.put("/:storyId/vote", (req, res) => {
 // @route GET /story/:storyId/chapter/:chapterId
 // @access Public
 router.get("/:storyId/chapter/:chapterId", (req, res) => {
-	res.send("fetch story details with that id");
+    res.send("fetch story details with that id");
 });
 
 // @desc Add comment on a chapter
 // @route PUT /story/:storyId/chapter/:chapterId/comment
 // @access Private
 router.put("/:storyId/chapter/:chapterId/comment", (req, res) => {
-	res.send("update the comment data in chapter model of the story");
+    res.send("update the comment data in chapter model of the story");
 });
 
 // @desc Delete comment on a chapter
 // @route PUT /story/:storyId/chapter/:chapterId/comment/:commentId
 // @access Private
 router.delete("/:storyId/chapter/:chapterId/comment/:commentId", (req, res) => {
-	res.send("delete the comment data in chapter model of the story");
+    res.send("delete the comment data in chapter model of the story");
 });
 
 module.exports = router;
