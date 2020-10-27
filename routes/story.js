@@ -1,39 +1,41 @@
 const express = require("express");
 const router = express.Router();
 const Story = require('../models/Story');
+const passport = require("passport");
 
 // @desc Story summary
 // @route GET /story/:storyId
 // @access Public
-router.get("/:storyId", (req, res) => {
-    const { storyId } = req.params.storyId;
+router.get("/:storyId", async (req, res) => {
+    const { storyId } = req.params;
+    console.log(storyId)
     try {
-        Story.findOne({ _id: storyId }, (err, story) => {
-            if (!story) throw "Invalid Story ID";
+        const stories = await Story.findOne({ _id: storyId }, (err, story)=>{
+            if(!story) res.status(404).send({message: "Invalid story Id"})
+            return story
         }).lean();
-        res.send("fetch story details with that params.storyId");
+
+        res.send({storyData: stories, message: "Story Found"})
     } catch (err) {
-        console.log(err);
+        res.status(500).send({message: "Internal Server Error"})
     }
 });
 
-// @desc Story Vote update
+// @desc Story Vote updat
 // @route PUT /story/:storyId/vote
 // @access Private
-router.put("/:storyId/vote", (req, res) => {
-    const { storyId } = req.params.storyId;
+router.put("/:storyId/vote",
+passport.authenticate("jwt", {session: false}), async (req, res) => {
+    const { storyId } = req.params;
 
     try {
-        Story.findOne({ _id: storyId }, (err, story) => {
-            if (!story) throw "Invalid Story ID";
+        await Story.findOne({ _id: storyId }, async (err, story) => {
+            if (!story) res.status(404).send({message: "Invalid Story ID"})
+            await Story.updateOne({ _id: storyId}, {$set: {voteCount: story.voteCount + 1}})
+            res.status(200).send({message: "Vote Updated"})
         });
-
-        var voteCount = story.voteCount + 1;
-        var newvalues = { $set: { voteCount: voteCount } };
-        Story.updateOne({ ...req.body, storyId }, { _id: storyId }, newvalues);
-        res.send("increase the story vote counter");
     } catch (err) {
-        console.log(err);
+        res.status(500).send({message: "Internal Server Error"})
     }
 });
 
