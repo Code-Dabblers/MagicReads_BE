@@ -21,7 +21,7 @@ router.get("/:storyId", async (req, res) => {
     }
 });
 
-// @desc Story Vote updat
+// @desc Story Vote update
 // @route PUT /story/:storyId/vote
 // @access Private
 router.put("/:storyId/vote",
