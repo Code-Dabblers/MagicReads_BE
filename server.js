@@ -18,11 +18,47 @@ dotenv.config({ path: "./config/config.env" });
 // Passport config
 require("./config/passport");
 
+// Swagger Doc
+const swaggerJSDoc = require("swagger-jsdoc");
+const swaggerUI = require("swagger-ui-express");
+
+const swaggerOptions = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "MagicReads API",
+            version: "1.0.0",
+            description:
+                "This is an API for the MagicReads web app made with Express and documented with Swagger",
+            license: {
+                name: "MIT",
+                url: "https://opensource.org/licenses/MIT",
+            },
+        },
+        servers: [
+            {
+                url: "http://localhost:3000",
+                description: "Development Server",
+            },
+        ],
+    },
+    apis: ["server.js", "routes/*.js", ".**/*.js"],
+};
+
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+
 // Database Connected
 connectDB();
 
 // Initialize App
 const app = express();
+
+// Swagger Doc Route
+app.use(
+    "/api-docs",
+    swaggerUI.serve,
+    swaggerUI.setup(swaggerDocs, { explorer: true })
+);
 
 app.use(cors());
 
@@ -66,7 +102,6 @@ app.use(function (req, res, next) {
     res.locals.user = req.user || null;
     next();
 });
-
 
 // Routes
 app.use("/", require("./routes/index.js"));
