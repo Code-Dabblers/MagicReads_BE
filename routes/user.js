@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 
 const BCRYPT_SALT_ROUNDS = 12;
 const User = require("../models/User");
+const passport = require("passport");
 
 // @desc Landing page
 // @route GET /user
@@ -110,8 +111,25 @@ router.post("/login", (req, res) => {
 // @desc Add story to User's Reading List
 // @route POST /user/:storyId/readingList
 // @access Private
-router.post("/:storyId/readingList", (req, res) => {
-    res.send("Add the story to user reading list");
+router.post("/:storyId/readingList", 
+passport.authenticate("jwt", { session: false }),
+async(req, res) => {
+        try {
+            await Story.findOne({ _id: storyId }, async function (err, story) {
+                if (err) res.status(404).send({ message: err.message });
+                await User.updateOne(
+                    { _id: req.user._id },
+                    { $push: { readingList: { _id: story._id } } }
+                );
+                res.status(200).send({
+                    message: "Story Added to the reading list",
+                    storyId: story._id,
+                });
+            });
+        } catch (err) {
+            res.status(500).send({ message: "Internal Server Error" });
+    }
+   // res.send("Add the story to user reading list");
 });
 
 // @desc User Reading List
