@@ -2,6 +2,13 @@ const express = require("express");
 const router = express.Router();
 
 // @desc Edit story details
+// @route GET /edit/story/:storyID/details
+// @access Private
+router.put("/story/:storyID/details ", (req, res) => {
+    res.send("get the story data");
+});
+
+// @desc Edit story details
 // @route PUT /edit/story/:storyID/details
 // @access Private
 router.put("/story/:storyID/details ", (req, res) => {

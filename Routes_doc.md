@@ -17,18 +17,18 @@
     -   /search/:query — GET request to send the data acc to query
     -   /search/:query?/:tag — GET request to send the data acc to tag
 
--   /story 
+-   /story
 
-    -   /story/:storyID — GET story details
+    -   /story/:storyID — GET story details ✅
     -   /story/:storyID/chapter/:chapterID — GET request to get the particular chapter
     -   /story/:storyID/chapter/:chapterID/comment — PUT request to update comments in Chapter
     -   /story/:storyID/chapter/:chapterID/comment/:commentId — DELETE request to delete comments in Chapter
-    -   /story/:storyID/vote — PUT request to update vote counter
+    -   /story/:storyID/vote — PUT request to update vote counter ✅
 
 -   /create
 
-    -   /create — POST request to save Story data (protected route) - this will return the story Id which will be passed onto a route to edit that chapter
-    -   /create/story/:storyID/chapter — POST request to store the chapter (protected route)
+    -   /create — POST request to save Story data (protected route) - this will return the story Id which will be passed onto a route to edit that chapter ✅
+    -   /create/story/:storyID/chapter — POST request to store the chapter (protected route) ✅
 
 -   /edit
     -   /edit/story/:storyID/details — PUT request to update story details (protected route)
