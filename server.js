@@ -67,7 +67,6 @@ app.use(function (req, res, next) {
     next();
 });
 
-
 // Routes
 app.use("/", require("./routes/index.js"));
 app.use("/user", require("./routes/user.js"));

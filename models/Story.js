@@ -15,7 +15,20 @@ const storySchema = new mongoose.Schema({
     chapters: [{ _id: { type: String, ref: "Chapter" } }],
     author: {
         username: { type: String, required: true },
+
         userId: { type: String, required: true },
     },
 });
+
+storySchema.index({
+    storyName: "text",
+    genre: "text",
+    tag: "text",
+    summary: "text",
+});
+// to drop the index
+// const drop = await Story.collection.dropIndex(
+//     "storyName_text_genre_text_tag_text_summary_text"
+// );
+// console.log(drop);
 module.exports = mongoose.model("Story", storySchema);

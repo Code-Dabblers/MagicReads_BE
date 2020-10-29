@@ -36,5 +36,4 @@ const userSchema = new mongoose.Schema({
     library: [{ storyId: { type: String, ref: "Story" } }],
     myStories: [{ _id: { type: String, ref: "Story" } }],
 });
-
 module.exports = mongoose.model("User", userSchema);

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Story = require('../models/Story');
+const Story = require("../models/Story");
 const passport = require("passport");
 
 // @desc Story summary
@@ -8,36 +8,43 @@ const passport = require("passport");
 // @access Public
 router.get("/:storyId", async (req, res) => {
     const { storyId } = req.params;
-    console.log(storyId)
+    console.log(storyId);
     try {
-        const stories = await Story.findOne({ _id: storyId }, (err, story)=>{
-            if(!story) res.status(404).send({message: "Invalid story Id"})
-            return story
+        const stories = await Story.findOne({ _id: storyId }, (err, story) => {
+            if (!story) res.status(404).send({ message: "Invalid story Id" });
+            return story;
         }).lean();
 
-        res.send({storyData: stories, message: "Story Found"})
+        res.send({ storyData: stories, message: "Story Found" });
     } catch (err) {
-        res.status(500).send({message: "Internal Server Error"})
+        res.status(500).send({ message: "Internal Server Error" });
     }
 });
 
 // @desc Story Vote update
 // @route PUT /story/:storyId/vote
 // @access Private
-router.put("/:storyId/vote",
-passport.authenticate("jwt", {session: false}), async (req, res) => {
-    const { storyId } = req.params;
+router.put(
+    "/:storyId/vote",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        const { storyId } = req.params;
 
-    try {
-        await Story.findOne({ _id: storyId }, async (err, story) => {
-            if (!story) res.status(404).send({message: "Invalid Story ID"})
-            await Story.updateOne({ _id: storyId}, {$set: {voteCount: story.voteCount + 1}})
-            res.status(200).send({message: "Vote Updated"})
-        });
-    } catch (err) {
-        res.status(500).send({message: "Internal Server Error"})
+        try {
+            await Story.findOne({ _id: storyId }, async (err, story) => {
+                if (!story)
+                    res.status(404).send({ message: "Invalid Story ID" });
+                await Story.updateOne(
+                    { _id: storyId },
+                    { $set: { voteCount: story.voteCount + 1 } }
+                );
+                res.status(200).send({ message: "Vote Updated" });
+            }).lean();
+        } catch (err) {
+            res.status(500).send({ message: "Internal Server Error" });
+        }
     }
-});
+);
 
 // @desc Chapter of the Story
 // @route GET /story/:storyId/chapter/:chapterId

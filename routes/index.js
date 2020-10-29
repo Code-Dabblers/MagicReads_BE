@@ -16,7 +16,9 @@ router.post("/", async (req, res) => {
     }
 });
 
-// Some code I tried to test that all connections are connected and we can add stories, chapters and comments. By no means this is the code which can be used as I used random routes just to know if the API will work, you can refer to this code although.
+// Some code I tried to test that all connections are connected and we can add stories, chapters and comments.
+// By no means this is the code which can be used as I used random routes just to know if the API will work,
+// you can refer to this code although.
 
 // router.get(
 //     "/user",
