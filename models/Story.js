@@ -23,12 +23,11 @@ const storySchema = new mongoose.Schema({
 storySchema.index({
     storyName: "text",
     genre: "text",
-    tag: "text",
     summary: "text",
 });
-// To create new index first drop the previous one
-// const drop = await Story.collection.dropIndex(
-//     "your_index_name"
-// );
-// console.log(drop);
+//TO perfome keyword search
+storySchema.index({
+    tags: 1,
+});
+
 module.exports = mongoose.model("Story", storySchema);

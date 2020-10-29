@@ -16,8 +16,10 @@ router.get("/", (req, res) => {
 // @access Public
 router.get("/:query", async (req, res) => {
     const { query } = req.params;
+    const tags = req.query.tags;
+    console.log("tags are " + tags);
     await Story.find(
-        { $text: { $search: query } },
+        { $or: [{ tags: { $all: tags } }, { $text: { $search: query } }] },
         { score: { $meta: "textScore" } }
     )
         .populate({ path: "chapters", model: Chapter })
@@ -37,7 +39,12 @@ router.get("/:query", async (req, res) => {
 // @desc Serach from query and tag
 // @route GET /search/:query/:tag
 // @access Public
-router.get("/:query?/:tag", (req, res) => {
+router.get("/:query?/:tag", async (req, res) => {
+    console.log(
+        "=============================================================="
+    );
+    console.log(req.params);
+    // console.log(object);
     res.send(
         "e.g /search/romance/humour should show stories with that keyword which can be in story name, description, genre along with having the tag of humour"
     );
