@@ -7,16 +7,17 @@ const passport = require("passport");
 
 /**
  * @swagger
- * - name: user
  * /:
  *  get:
- *      description: Use to fetch all the public stories
+ *      tags:
+ *      -  "dashboard"
+ *      description: Use to fetch all the public stories to dashboard
  *      responses:
  *          "200":
  *              description: A successful response
  */
 
-router.get("/", async (req, res) => {
+router.get("/dashboard", async (req, res) => {
     try {
         res.send("fetch all public stories data (make sure to pass story ids)");
     } catch (err) {
