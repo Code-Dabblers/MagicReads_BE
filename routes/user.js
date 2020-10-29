@@ -107,6 +107,13 @@ router.post("/login", (req, res) => {
         );
 });
 
+// @desc Add story to User's Reading List
+// @route POST /user/:storyId/readingList
+// @access Private
+router.post("/:storyId/readingList", (req, res) => {
+    res.send("Add the story to user reading list");
+});
+
 // @desc User Reading List
 // @route GET /user/readingList
 // @access Private
@@ -114,6 +121,13 @@ router.get("/readingList", (req, res) => {
     res.send(
         "User will have an array of id's of stories in their readingList array in db, fetch them and send them as response"
     );
+});
+
+// @desc Add story to User's Library
+// @route POST /user/:storyId/readingList
+// @access Private/Public
+router.post("/:storyId/library", (req, res) => {
+    res.send("Add the story to user library");
 });
 
 // @desc User Library

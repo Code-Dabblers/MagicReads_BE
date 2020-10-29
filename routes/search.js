@@ -40,9 +40,6 @@ router.get("/:query", async (req, res) => {
 // @route GET /search/:query/:tag
 // @access Public
 router.get("/:query?/:tag", async (req, res) => {
-    console.log(
-        "=============================================================="
-    );
     console.log(req.params);
     // console.log(object);
     res.send(
