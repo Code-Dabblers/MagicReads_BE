@@ -52,7 +52,7 @@ router.post("/:storyId/chapter", async (req, res) => {
                         { _id: storyId },
                         {
                             $push: {
-                                chapters: { _id: chapter._id },
+                                chapters: chapter._id,
                             },
                         }
                     );
