@@ -5,10 +5,18 @@ const Story = require("../models/Story");
 const Chapter = require("../models/Chapter");
 const passport = require("passport");
 
-// @desc Public Stories on dashboard
-// @route GET /
-// @access Public
-router.post("/", async (req, res) => {
+/**
+ * @swagger
+ * - name: user
+ * /:
+ *  get:
+ *      description: Use to fetch all the public stories
+ *      responses:
+ *          "200":
+ *              description: A successful response
+ */
+
+router.get("/", async (req, res) => {
     try {
         res.send("fetch all public stories data (make sure to pass story ids)");
     } catch (err) {
