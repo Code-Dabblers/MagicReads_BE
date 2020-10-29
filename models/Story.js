@@ -19,16 +19,16 @@ const storySchema = new mongoose.Schema({
         userId: { type: String, required: true },
     },
 });
-
+//CREATING INDEX FOR search/:query
 storySchema.index({
     storyName: "text",
     genre: "text",
     tag: "text",
     summary: "text",
 });
-// to drop the index
+// To create new index first drop the previous one
 // const drop = await Story.collection.dropIndex(
-//     "storyName_text_genre_text_tag_text_summary_text"
+//     "your_index_name"
 // );
 // console.log(drop);
 module.exports = mongoose.model("Story", storySchema);

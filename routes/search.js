@@ -4,21 +4,6 @@ const express = require("express"),
     mongoose = require("mongoose"),
     Chapter = require("../models/Chapter");
 
-// const db = mongoose.connection;
-// console.log(db);
-
-// db.collection("stories").createIndex({
-//     storyName: "text",
-//     genre: "text",
-//     tag: "text",
-//     summary: "text",
-// });
-// const coll = db.collection("stories");
-// const indxs = await coll.indexes();
-// console.log(
-//     "=============================NEW NEW NEW ====================================================="
-// );
-// console.log(indxs);
 // @desc Search
 // @route GET /search
 // @access Public
@@ -31,21 +16,21 @@ router.get("/", (req, res) => {
 // @access Public
 router.get("/:query", async (req, res) => {
     const { query } = req.params;
-    // console.log(`query paramter ${query}`);
-    Story.find({ $text: { $search: query } }, { score: { $meta: "textScore" } })
-
+    await Story.find(
+        { $text: { $search: query } },
+        { score: { $meta: "textScore" } }
+    )
         .populate({ path: "chapters", model: Chapter })
         .then((stories) => {
             if (stories.length === 0) res.send({ message: "NO STORY FOUND" });
             else res.send({ storyData: stories, message: "Story Found" });
         })
         .catch((err) => {
-            // res.status(500).send({
-            //     message: "Failed: to search via index",
-            //     success: true,
-            //     result: err,
-            // });
-            res.status(500).send({ message: `Error ${err}` });
+            res.status(500).send({
+                message: "Failed: to search via query",
+                success: true,
+                result: err,
+            });
         });
 });
 
