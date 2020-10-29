@@ -35,7 +35,6 @@ router.get("/:query", async (req, res) => {
     Story.find({ $text: { $search: query } }, { score: { $meta: "textScore" } })
 
         .populate({ path: "chapters", model: Chapter })
-        .exec()
         .then((stories) => {
             if (stories.length === 0) res.send({ message: "NO STORY FOUND" });
             else res.send({ storyData: stories, message: "Story Found" });
