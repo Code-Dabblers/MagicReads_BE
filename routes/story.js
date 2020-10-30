@@ -8,6 +8,8 @@ const passport = require("passport");
  * @swagger
  * /story/{storyId}:
  *  get:
+ *      security:
+ *          - bearerAuth: []
  *      tags:
  *      -  "story"
  *      description: Get the story with the story id
@@ -22,25 +24,35 @@ const passport = require("passport");
  *      responses:
  *          "200":
  *              description: A successful response
+ *          "404":
+ *              description: Not Found
  */
 
-router.get("/:storyId", async (req, res) => {
-    const { storyId } = req.params;
-    console.log(storyId);
-    try {
-        const stories = await Story.findOne({ _id: storyId }, (err, story) => {
-            if (!story) res.status(404).send({ message: "Invalid story Id" });
-            return story;
-        }).lean();
+router.get(
+    "/:storyId",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        const { storyId } = req.params;
+        console.log(storyId);
+        try {
+            const stories = await Story.findOne(
+                { _id: storyId },
+                (err, story) => {
+                    if (!story)
+                        res.status(404).send({ message: "Invalid story Id" });
+                    return story;
+                }
+            ).lean();
 
-        res.send({ storyData: stories, message: "Story Found" });
-    } catch (err) {
-        res.status(500).send({
+            res.send({ storyData: stories, message: "Story Found" });
+        } catch (err) {
+            res.status(500).send({
                 message: "Internal Server Error",
                 error: err.message,
-         });
+            });
+        }
     }
-});
+);
 
 /**
  * @swagger
@@ -140,7 +152,6 @@ router.get("/:storyId/chapter/:chapterId", (req, res) => {
             error: err.message,
         });
     }
-
 });
 
 /**
@@ -263,6 +274,5 @@ router.delete(
         }
     }
 );
-
 
 module.exports = router;

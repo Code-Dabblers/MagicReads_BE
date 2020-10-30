@@ -118,6 +118,15 @@ app.use(function (req, res, next) {
  *        description: "Access to creation of stories and chapters"
  *      - name: "edit"
  *        description: "Edit existing stories and chapters"
+ * components:
+ *      securitySchemes:
+ *          bearerAuth:
+ *              name: Authorization
+ *              description: "JWT Auth with Bearer Token"
+ *              in: header
+ *              type: http
+ *              scheme: bearer
+ *              bearerFormat: Bearer
  *
  */
 app.use("/", require("./routes/index.js"));
