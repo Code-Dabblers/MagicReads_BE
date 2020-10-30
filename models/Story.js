@@ -15,7 +15,16 @@ const storySchema = new mongoose.Schema({
     chapters: [{ type: String, ref: "Chapter" }],
     author: {
         username: { type: String, required: true },
+
         userId: { type: String, required: true },
     },
+});
+
+// create index for text and keyword search
+storySchema.index({
+    storyName: "text",
+    genre: "text",
+    summary: "text",
+    tags: 1,
 });
 module.exports = mongoose.model("Story", storySchema);

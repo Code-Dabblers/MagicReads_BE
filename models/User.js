@@ -56,5 +56,4 @@ const userSchema = new mongoose.Schema({
     ],
     myStories: [{ type: String, ref: "Story" }],
 });
-
 module.exports = mongoose.model("User", userSchema);

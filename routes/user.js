@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-
+const passport = require("passport");
 const BCRYPT_SALT_ROUNDS = 12;
 const User = require("../models/User");
 
@@ -110,17 +110,51 @@ router.post("/login", (req, res) => {
 // @desc Add story to User's Reading List
 // @route POST /user/:storyId/readingList
 // @access Private
-router.post("/:storyId/readingList", (req, res) => {
-    res.send("Add the story to user reading list");
+router.post("/:storyId/readingList", 
+passport.authenticate("jwt", { session: false }),
+async(req, res) => {
+        try {
+            await Story.findOne({ _id: storyId }, async function (err, story) {
+                if (err) res.status(404).send({ message: err.message });
+                await User.updateOne(
+                    { _id: req.user._id },
+                    { $push: { readingList: { _id: story._id } } }
+                );
+                res.status(200).send({
+                    message: "Story Added to the reading list",
+                    storyId: story._id,
+                });
+            });
+        } catch (err) {
+            res.status(500).send({ message: "Internal Server Error" });
+    }
+   // res.send("Add the story to user reading list");
 });
 
 // @desc User Reading List
 // @route GET /user/readingList
 // @access Private
-router.get("/readingList", (req, res) => {
-    res.send(
-        "User will have an array of id's of stories in their readingList array in db, fetch them and send them as response"
-    );
+router.get("/readingList", 
+passport.authenticate("jwt", { session: false }),
+async(req, res) => {
+    try {
+        const stories = await Story.find({
+          user: req.params._id,
+          visibility: 'public',
+        })
+          .populate('user')
+          .lean()
+    
+          res.status(200).send({
+            message: "Reading list of user",
+            storyId: {stories}
+        });
+      } catch (err) {
+        res.status(500).send({ message: "Internal Server Error" });
+      }
+    // res.send(
+    //     "User will have an array of id's of stories in their readingList array in db, fetch them and send them as response"
+    // );
 });
 
 // @desc Add story to User's Library
@@ -142,15 +176,46 @@ router.get("/library", (req, res) => {
 // @desc User Settings
 // @route GET /user/settings
 // @access Private
-router.get("/settings", (req, res) => {
-    res.send("Send user info except password");
+router.get("/settings", 
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+    try {
+        await User.findOne({_id: req.user._id}, (err, user) => {
+            console.log(user)
+            const data = {
+                username: user.username,
+                email: user.email,
+                firstname: user.firstName,
+                lastname: user.lastName
+            }
+            res.status(200).send({ userData: data })
+        }).lean()
+    } catch(err) {
+        res.status(500).send({ 
+            message: "Internal Server Error",
+            error: err.message })
+    }
 });
 
 // @desc User Settings
 // @route PUT /user/settings
 // @access Private
-router.put("/settings", (req, res) => {
-    res.send("Update user and redirect to settings page with updated info");
+router.put("/settings", 
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+
+    try {
+        const userDetails = await User.findOne({_id: req.user._id}, async(err, user)=>{
+            if(!user) res.status(404).send({message: "User not found"})
+            await User.updateOne({_id: user._id}, {$set: req.body})
+            res.status(200).send({message: "Updated user settings"})
+        })
+    } catch (err) {
+        res.status(500).send({ 
+            message: "Internal Server Error",
+            error: err.message })
+    }
+    
 });
 
 // @desc Logout page

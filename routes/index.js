@@ -3,20 +3,28 @@ const router = express.Router();
 const User = require("../models/User");
 const Story = require("../models/Story");
 const Chapter = require("../models/Chapter");
-const passport = require("passport");
+
+router.get("/", async (req, res) => {
+    try {
+        res.redirect("/api-docs");
+    } catch (err) {
+        console.log(err);
+    }
+});
 
 /**
  * @swagger
- * - name: user
- * /:
+ * /dashboard:
  *  get:
- *      description: Use to fetch all the public stories
+ *      tags:
+ *      -  "dashboard"
+ *      description: Use to fetch all the public stories to dashboard
  *      responses:
  *          "200":
  *              description: A successful response
  */
 
-router.get("/", async (req, res) => {
+router.get("/dashboard", async (req, res) => {
     try {
         res.send("fetch all public stories data (make sure to pass story ids)");
     } catch (err) {

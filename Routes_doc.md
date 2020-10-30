@@ -2,27 +2,27 @@
 
 ✅ -> Indicates that the route is working.
 
--   / - Public Stories — GET request for all Public Stories data
+-   /dashboard - Public Stories — GET request for all Public Stories data
+
 -   /user — GET request for User Dashboard
 
     -   /user/register — POST request to add the user ✅
     -   /user/login — POST request to log in the user ✅
     -   /user/logout — GET request Redirected to "/" landing page after user is logged out ✅
     -   /user/library — GET request to fetch the stories from the user library
-    -   /user/readingList — GET request to fetch the stories from the user reading list
-    -   /user/settings — GET to show current info and PUT request to update user info
+    -   /user/readingList — GET request to fetch the stories from the user reading list ✅
+    -   /user/settings — GET to show current info and PUT request to update user info ✅
 
 -   /search — search and filter stories
 
-    -   /search/:query — GET request to send the data acc to query
-    -   /search/:query?/:tag — GET request to send the data acc to tag
+    -   /search/:query — GET request to send the data acc to query and tags ✅
 
 -   /story
 
     -   /story/:storyID — GET story details ✅
-    -   /story/:storyID/chapter/:chapterID — GET request to get the particular chapter
-    -   /story/:storyID/chapter/:chapterID/comment — PUT request to update comments in Chapter
-    -   /story/:storyID/chapter/:chapterID/comment/:commentId — DELETE request to delete comments in Chapter
+    -   /story/:storyID/chapter/:chapterID — GET request to get the particular chapter ✅
+    -   /story/:storyID/chapter/:chapterID/comment — PUT request to update comments in Chapter ✅
+    -   /story/:storyID/chapter/:chapterID/comment/:commentId — DELETE request to delete comments in Chapter ✅
     -   /story/:storyID/vote — PUT request to update vote counter ✅
 
 -   /create
