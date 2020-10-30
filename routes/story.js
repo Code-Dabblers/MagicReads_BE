@@ -11,7 +11,7 @@ const passport = require("passport");
  *      tags:
  *      -  "story"
  *      description: Get the story with the story id
- *      produces: 
+ *      produces:
  *      -   "application/json"
  *      -   "application/xml"
  *      parameters:
