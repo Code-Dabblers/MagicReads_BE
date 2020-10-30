@@ -25,7 +25,9 @@ const passport = require("passport");
  *          "200":
  *              description: A successful response
  *          "404":
- *              description: Not Found
+ *              description: Story with the passed id is not found
+ *          "500":
+ *              description: Unhandled error scenario has occured
  */
 
 router.get(
