@@ -11,7 +11,7 @@ const passport = require("passport");
  *      tags:
  *      -  "story"
  *      description: Get the story with the story id
- *      produces:
+ *      produces: 
  *      -   "application/json"
  *      -   "application/xml"
  *      parameters:
@@ -25,17 +25,21 @@ const passport = require("passport");
  *              description: A successful response
  */
 
-router.get("/:storyId", (req, res) => {
-    // res.send("fetch story details with that params.storyId");
+router.get("/:storyId", async (req, res) => {
+    const { storyId } = req.params;
+    console.log(storyId);
     try {
-        Story.findOne({ _id: req.params.storyId }, (err, story) => {
-            if (!story) res.status(404).send({ message: "Invalid Story ID" });
-            console.log("Story details have been fetched");
-            res.send(story);
+        const stories = await Story.findOne({ _id: storyId }, (err, story) => {
+            if (!story) res.status(404).send({ message: "Invalid story Id" });
+            return story;
         }).lean();
+
+        res.send({ storyData: stories, message: "Story Found" });
     } catch (err) {
-        console.log(err);
-        res.status(404).send("Invalid Story ID");
+        res.status(500).send({
+                message: "Internal Server Error",
+                error: err.message,
+         });
     }
 });
 
@@ -90,6 +94,7 @@ router.get("/:storyId/chapter/:chapterId", (req, res) => {
             error: err.message,
         });
     }
+
 });
 
 // @desc Add comment on a chapter
@@ -124,6 +129,7 @@ router.put(
     }
 );
 
+
 // @desc Delete comment on a chapter
 // @route PUT /story/:storyId/chapter/:chapterId/comment/:commentId
 // @access Private
@@ -153,5 +159,6 @@ router.delete(
         }
     }
 );
+
 
 module.exports = router;

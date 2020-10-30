@@ -18,11 +18,47 @@ dotenv.config({ path: "./config/config.env" });
 // Passport config
 require("./config/passport");
 
+// Swagger Doc
+const swaggerJSDoc = require("swagger-jsdoc");
+const swaggerUI = require("swagger-ui-express");
+
+const swaggerOptions = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "MagicReads API",
+            version: "1.0.0",
+            description:
+                "This is an API for the MagicReads web app made with Express and documented with Swagger",
+            license: {
+                name: "MIT",
+                url: "https://opensource.org/licenses/MIT",
+            },
+        },
+        servers: [
+            {
+                url: "http://localhost:3000",
+                description: "Development Server",
+            },
+        ],
+    },
+    apis: ["server.js", "routes/*.js", ".**/*.js"],
+};
+
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
+
 // Database Connected
 connectDB();
 
 // Initialize App
 const app = express();
+
+// Swagger Doc Route
+app.use(
+    "/api-docs",
+    swaggerUI.serve,
+    swaggerUI.setup(swaggerDocs, { explorer: true })
+);
 
 app.use(cors());
 
@@ -67,8 +103,23 @@ app.use(function (req, res, next) {
     next();
 });
 
-
-// Routes
+/**
+ * @swagger
+ * tags:
+ *      - name: "dashboard"
+ *        description: "Public stories available to read"
+ *      - name: "user"
+ *        description: "Everything about the user"
+ *      - name: "story"
+ *        description: "Access to stories"
+ *      - name: "search"
+ *        description: "Search for the stories"
+ *      - name: "create"
+ *        description: "Access to creation of stories and chapters"
+ *      - name: "edit"
+ *        description: "Edit existing stories and chapters"
+ *
+ */
 app.use("/", require("./routes/index.js"));
 app.use("/user", require("./routes/user.js"));
 app.use("/search", require("./routes/search.js"));

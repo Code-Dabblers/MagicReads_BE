@@ -12,7 +12,7 @@ const storySchema = new mongoose.Schema({
     cover: { type: String },
     genre: { type: String, required: true },
     visibility: { type: String, required: true, enum: ["public", "private"] },
-    chapters: [{ _id: { type: String, ref: "Chapter" } }],
+    chapters: [{ type: String, ref: "Chapter" }],
     author: {
         username: { type: String, required: true },
         userId: { type: String, required: true },
