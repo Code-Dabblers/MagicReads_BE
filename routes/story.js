@@ -3,9 +3,27 @@ const router = express.Router();
 const Story = require("../models/Story");
 const passport = require("passport");
 
-// @desc Story summary
-// @route GET /story/:storyId
-// @access Public
+/**
+ * @swagger
+ * /story/{storyId}:
+ *  get:
+ *      tags:
+ *      -  "story"
+ *      description: Get the story with the story id
+ *      produces:
+ *      -   "application/json"
+ *      -   "application/xml"
+ *      parameters:
+ *      - name: storyId
+ *        description: ID of the story to return
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      responses:
+ *          "200":
+ *              description: A successful response
+ */
+
 router.get("/:storyId", async (req, res) => {
     const { storyId } = req.params;
     console.log(storyId);
@@ -39,7 +57,7 @@ router.put(
                     { $set: { voteCount: story.voteCount + 1 } }
                 );
                 res.status(200).send({ message: "Vote Updated" });
-            }).lean();
+            });
         } catch (err) {
             res.status(500).send({ message: "Internal Server Error" });
         }

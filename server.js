@@ -103,7 +103,23 @@ app.use(function (req, res, next) {
     next();
 });
 
-// Routes
+/**
+ * @swagger
+ * tags:
+ *      - name: "dashboard"
+ *        description: "Public stories available to read"
+ *      - name: "user"
+ *        description: "Everything about the user"
+ *      - name: "story"
+ *        description: "Access to stories"
+ *      - name: "search"
+ *        description: "Search for the stories"
+ *      - name: "create"
+ *        description: "Access to creation of stories and chapters"
+ *      - name: "edit"
+ *        description: "Edit existing stories and chapters"
+ *
+ */
 app.use("/", require("./routes/index.js"));
 app.use("/user", require("./routes/user.js"));
 app.use("/search", require("./routes/search.js"));
