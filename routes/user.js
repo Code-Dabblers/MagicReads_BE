@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-
+const passport = require("passport");
 const BCRYPT_SALT_ROUNDS = 12;
 const User = require("../models/User");
 const passport = require("passport");
@@ -177,15 +177,46 @@ router.get("/library", (req, res) => {
 // @desc User Settings
 // @route GET /user/settings
 // @access Private
-router.get("/settings", (req, res) => {
-    res.send("Send user info except password");
+router.get("/settings", 
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+    try {
+        await User.findOne({_id: req.user._id}, (err, user) => {
+            console.log(user)
+            const data = {
+                username: user.username,
+                email: user.email,
+                firstname: user.firstName,
+                lastname: user.lastName
+            }
+            res.status(200).send({ userData: data })
+        }).lean()
+    } catch(err) {
+        res.status(500).send({ 
+            message: "Internal Server Error",
+            error: err.message })
+    }
 });
 
 // @desc User Settings
 // @route PUT /user/settings
 // @access Private
-router.put("/settings", (req, res) => {
-    res.send("Update user and redirect to settings page with updated info");
+router.put("/settings", 
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+
+    try {
+        const userDetails = await User.findOne({_id: req.user._id}, async(err, user)=>{
+            if(!user) res.status(404).send({message: "User not found"})
+            await User.updateOne({_id: user._id}, {$set: req.body})
+            res.status(200).send({message: "Updated user settings"})
+        })
+    } catch (err) {
+        res.status(500).send({ 
+            message: "Internal Server Error",
+            error: err.message })
+    }
+    
 });
 
 // @desc Logout page
