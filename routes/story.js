@@ -29,7 +29,7 @@ router.get("/:storyId", (req, res) => {
     // res.send("fetch story details with that params.storyId");
     try {
         Story.findOne({ _id: req.params.storyId }, (err, story) => {
-            if (!story) throw Error;
+            if (!story) res.status(404).send({ message: "Invalid Story ID" });
             console.log("Story details have been fetched");
             res.send(story);
         }).lean();
@@ -52,14 +52,19 @@ router.put(
                 req.params.storyId,
                 { $inc: { voteCount: 1 } },
                 (err, result) => {
-                    if (!result) throw Error;
+                    if (!result)
+                        res.status(404).send({
+                            message: "Story with this ID is not found",
+                        });
                     console.log("Story vote counter has been increased");
                     res.send(result);
                 }
             );
         } catch (err) {
-            console.log(err);
-            res.status(404).send("Story with this ID is not found");
+            res.status(500).send({
+                message: "Internal Server Error",
+                error: err.message,
+            });
         }
     }
 );
@@ -72,13 +77,18 @@ router.get("/:storyId/chapter/:chapterId", (req, res) => {
     const { storyId, chapterId } = req.params;
     try {
         Chapter.findOne({ _id: chapterId, storyId }, (err, chapter) => {
-            if (!chapter) throw Error;
+            if (!chapter)
+                res.status(404).send({
+                    message: "Invalid Story or Chapter ID",
+                });
             console.log("Chapter details have been fetched");
             res.send(chapter);
         });
     } catch (err) {
-        console.log(err);
-        res.status(404).send("Invalid Story or Chapter ID");
+        res.status(500).send({
+            message: "Internal Server Error",
+            error: err.message,
+        });
     }
 });
 
@@ -97,14 +107,19 @@ router.put(
                 { _id: chapterId, storyId },
                 { $push: { comments: { storyId, username, userId, comment } } },
                 (err, result) => {
-                    if (!result) throw Error;
+                    if (!result)
+                        res.status(404).send({
+                            message: "Invalid Story or Chapter ID",
+                        });
                     console.log("Comment has been added pushed");
                     res.send(result);
                 }
             );
         } catch (err) {
-            console.log(err);
-            res.status(404).send("Invalid Story or Chapter ID");
+            res.status(500).send({
+                message: "Internal Server Error",
+                error: err.message,
+            });
         }
     }
 );
@@ -122,14 +137,19 @@ router.delete(
             Chapter.findOneAndDelete(
                 { _id: chapterId, storyId, "comments._id": commentId },
                 (err, result) => {
-                    if (!result) throw Error;
+                    if (!result)
+                        res.status(404).send({
+                            message: "Invalid Story, Chapter or Comment ID",
+                        });
                     console.log("Comment has been deleted");
                     res.send(result);
                 }
             );
         } catch (err) {
-            console.log(err);
-            res.status(404).send("Invalid Story, Chapter or Comment ID");
+            res.status(500).send({
+                message: "Internal Server Error",
+                error: err.message,
+            });
         }
     }
 );
