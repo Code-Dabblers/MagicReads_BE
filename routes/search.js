@@ -4,17 +4,10 @@ const express = require("express"),
     mongoose = require("mongoose"),
     Chapter = require("../models/Chapter");
 
-// @desc Search
-// @route GET /search
-// @access Public
-router.get("/", (req, res) => {
-    res.send("it should work tooo");
-});
-
 // @desc Serach from query
 // @route GET /search/:query
 // @access Public
-router.get("/:query", async (req, res) => {
+router.get("/:query?", async (req, res) => {
     const { query } = req.params;
     const tags = req.query.tags;
     console.log("tags are " + tags);

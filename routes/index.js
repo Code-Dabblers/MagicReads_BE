@@ -3,7 +3,14 @@ const router = express.Router();
 const User = require("../models/User");
 const Story = require("../models/Story");
 const Chapter = require("../models/Chapter");
-const passport = require("passport");
+
+router.get("/", async (req, res) => {
+    try {
+        res.redirect("/api-docs");
+    } catch (err) {
+        console.log(err);
+    }
+});
 
 /**
  * @swagger
