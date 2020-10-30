@@ -24,6 +24,8 @@ const passport = require("passport");
  *      responses:
  *          "200":
  *              description: A successful response
+ *          "404":
+ *              description: Not Found
  */
 
 router.get(
