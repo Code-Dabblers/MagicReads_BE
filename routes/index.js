@@ -7,7 +7,7 @@ const passport = require("passport");
 
 /**
  * @swagger
- * /:
+ * /dashboard:
  *  get:
  *      tags:
  *      -  "dashboard"

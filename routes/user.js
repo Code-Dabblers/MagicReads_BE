@@ -5,7 +5,6 @@ const bcrypt = require("bcrypt");
 const passport = require("passport");
 const BCRYPT_SALT_ROUNDS = 12;
 const User = require("../models/User");
-const passport = require("passport");
 
 // @desc Landing page
 // @route GET /user

@@ -13,7 +13,6 @@ const passport = require("passport");
  *      description: Get the story with the story id
  *      produces:
  *      -   "application/json"
- *      -   "application/xml"
  *      parameters:
  *      - name: storyId
  *        description: ID of the story to return
