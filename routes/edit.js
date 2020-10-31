@@ -10,18 +10,20 @@ const passport = require("passport");
 router.patch(
     "/story/:storyId/details",
     passport.authenticate("jwt", { session: false }),
-    (req, res) => {
+    async (req, res) => {
         try {
             const { storyId } = req.params;
-            const data = req.body;
-            Story.findByIdAndUpdate(storyId, data, (err, result) => {
-                if (!result)
-                    res.status(404).send({
-                        message: "Story with this ID is not found",
-                    });
-                console.log("Story details have been edited");
-                res.send(result);
-            }).lean();
+            const data = await Story.findOneAndUpdate(
+                { _id: storyId },
+                req.body
+            ).lean();
+            if (!data)
+                return res.status(404).send({
+                    message: "Story with this ID is not found",
+                });
+            const successMsg = "Story details have been edited";
+            console.log(successMsg);
+            res.send({ message: successMsg });
         } catch (err) {
             res.status(500).send({
                 message: "Internal Server Error",
@@ -37,22 +39,21 @@ router.patch(
 router.patch(
     "/story/:storyId/chapter/:chapterId/details",
     passport.authenticate("jwt", { session: false }),
-    (req, res) => {
+    async (req, res) => {
         try {
             const { storyId, chapterId } = req.params;
-            const data = req.body;
-            Chapter.findOneAndUpdate(
+            const data = await Chapter.findOneAndUpdate(
                 { _id: chapterId, storyId },
-                data,
-                (err, result) => {
-                    if (!result)
-                        res.status(404).send({
-                            message: "Invalid Story or Chapter ID",
-                        });
-                    console.log("Chapter details have been edited");
-                    res.send(result);
-                }
+                req.body
             ).lean();
+
+            if (!data)
+                return res.status(404).send({
+                    message: "Invalid Story or Chapter ID",
+                });
+            const successMsg = "Chapter details have been edited";
+            console.log(successMsg);
+            res.send({ message: successMsg });
         } catch (err) {
             res.status(500).send({
                 message: "Internal Server Error",
