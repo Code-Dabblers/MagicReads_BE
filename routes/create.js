@@ -13,11 +13,21 @@ router.post(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
+            const { username, _id } = req.user;
+            req.body.author = {};
+            req.body.author.username = username;
+            req.body.author.userId = _id;
             await Story.create(req.body, async function (err, story) {
                 if (err) res.status(404).send({ message: err.message });
+                console.log(story);
                 await User.updateOne(
-                    { _id: req.user._id },
-                    { $push: { myStories: { _id: story._id } } }
+                    { _id: _id },
+                    { $push: { myStories: story.storyId } }
+                ).catch((err) =>
+                    res.status(500).send({
+                        message: "Internal Server Error",
+                        error: err.message,
+                    })
                 );
                 res.status(200).send({
                     message: "Story Created",
@@ -25,7 +35,10 @@ router.post(
                 });
             });
         } catch (err) {
-            res.status(500).send({ message: "Internal Server Error" });
+            res.status(500).send({
+                message: "Internal Server Error",
+                error: err.message,
+            });
         }
         // this should return back a storyID which will be used to create the chapter
     }
@@ -39,8 +52,11 @@ router.post(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
+            const { username, _id } = req.user;
+            req.body.author = {};
+            req.body.author.username = username;
+            req.body.author.userId = _id;
             const { storyId } = req.params;
-            console.log(storyId);
 
             // Checking if a story exists
             await Story.findOne({ _id: storyId }, async (err, story) => {
