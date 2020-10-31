@@ -9,7 +9,7 @@ const express = require("express"),
 // @access Public
 /**
  * @swagger
- * /search/{query}?:
+ * /search/{query}:
  *  get:
  *      tags:
  *      -  "search"
@@ -17,11 +17,17 @@ const express = require("express"),
  *      produces:
  *      -   "application/json"
  *      parameters:
- *      - name: query
- *        description: ID of the story to return
- *        in: "path"
- *        type: "string"
- *        required: true
+ *            - name: query
+ *              description: Search based on title or summary or genre name
+ *              in: "path"
+ *              type: "string"
+ *              required: true
+ *            - in: query
+ *              name: tags
+ *              description: Type any tags of the stories for eg horror
+ *              type: "string"
+ *              required: false
+ *
  *      responses:
  *          "200":
  *              description: A successful response
