@@ -18,11 +18,14 @@ router.get("/", (req, res) => {
 // @route POST /user/register
 // @access Public
 router.post("/register", (req, res) => {
-    const { email, password, firstName, lastName, username } = req.body;
-    User.findOne({
-        email: email,
-    })
-        .then((user) => {
+    try {
+        const { email, password, firstName, lastName, username } = req.body;
+        User.findOne({ email: email }, (err, user) => {
+            if (err)
+                return res.status(401).send({
+                    message: "The credential information is incorrect",
+                    error: err.message,
+                });
             if (user) {
                 console.log("email already taken");
                 res.status(201).send({
@@ -33,14 +36,21 @@ router.post("/register", (req, res) => {
                 bcrypt
                     .hash(password, BCRYPT_SALT_ROUNDS)
                     .then((hashedPassword) => {
-                        User.create({
-                            username,
-                            password: hashedPassword,
-                            email,
-                            firstName,
-                            lastName,
-                        })
-                            .then((user) => {
+                        User.create(
+                            {
+                                username,
+                                password: hashedPassword,
+                                email,
+                                firstName,
+                                lastName,
+                            },
+                            (err, user) => {
+                                if (err)
+                                    return res.status(401).send({
+                                        message:
+                                            "The credential information is incorrect",
+                                        error: err.message,
+                                    });
                                 const token = jwt.sign(
                                     { _id: user._id },
                                     process.env.JWT_SECRET
@@ -50,23 +60,23 @@ router.post("/register", (req, res) => {
                                     token: token,
                                     message: "User registration successful!",
                                 });
-                            })
-                            .catch((error) =>
-                                res.status(500).send({
-                                    message: "Internal server error",
-                                    error,
-                                })
-                            );
+                            }
+                        );
+                    })
+                    .catch((err) => {
+                        res.status(500).send({
+                            message: "Internal Server Error",
+                            error: err.message,
+                        });
                     });
             }
-        })
-        .catch((error) => {
-            console.log(error);
-            res.status(500).send({
-                message: "Internal server error",
-                error,
-            });
         });
+    } catch (err) {
+        res.status(500).send({
+            message: "Internal Server Error",
+            error: err.message,
+        });
+    }
 });
 
 // @desc Login page
@@ -82,7 +92,11 @@ router.post("/login", (req, res) => {
                 });
             }
             bcrypt.compare(password, user.password, (err, isMatch) => {
-                if (err) throw err;
+                if (err)
+                    return res.status(401).send({
+                        message: "The credential information is incorrect",
+                        error: err.message,
+                    });
 
                 if (isMatch) {
                     const token = jwt.sign(
@@ -116,7 +130,7 @@ router.put(
         try {
             const { storyId } = req.params;
             await Story.findOne({ _id: storyId }, async function (err, story) {
-                if (err) res.status(404).send({ message: err.message });
+                if (err) return res.status(401).send({ error: err.message });
                 await User.updateOne(
                     { _id: req.user._id },
                     { $addToSet: { "readingList.list": story._id } },
@@ -187,6 +201,7 @@ router.get(
     async (req, res) => {
         try {
             await User.findOne({ _id: req.user._id }, (err, user) => {
+                if (err) return res.status(401).send({ error: err.message });
                 const data = {
                     username: user.username,
                     firstname: user.firstName,
@@ -220,6 +235,7 @@ router.put(
             if (firstName) dataObj.firstName = firstName;
             if (lastName) dataObj.lastName = lastName;
             await User.findOne({ _id: req.user._id }, async (err, user) => {
+                if (err) return res.status(401).send({ error: err.message });
                 if (!user) res.status(404).send({ message: "User not found" });
                 await User.updateOne({ _id: user._id }, { $set: dataObj });
                 res.status(200).send({ message: "Updated user settings" });
