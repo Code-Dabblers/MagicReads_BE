@@ -32,28 +32,24 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
-    readingList: [
-        {
-            visibility: {
-                type: String,
-                required: true,
-                enum: ["public", "private"],
-                default: "private",
-            },
-            list: { type: String, ref: "Story" },
+    readingList: {
+        visibility: {
+            type: String,
+            required: true,
+            enum: ["public", "private"],
+            default: "private",
         },
-    ],
-    library: [
-        {
-            visibility: {
-                type: String,
-                required: true,
-                enum: ["public", "private"],
-                default: "private",
-            },
-            list: { type: String, ref: "Story" },
+        list: [{ type: String, ref: "Story" }],
+    },
+    library: {
+        visibility: {
+            type: String,
+            required: true,
+            enum: ["public", "private"],
+            default: "private",
         },
-    ],
+        list: [{ type: String, ref: "Story" }],
+    },
     myStories: [{ type: String, ref: "Story" }],
 });
 module.exports = mongoose.model("User", userSchema);
