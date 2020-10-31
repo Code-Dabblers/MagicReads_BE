@@ -63,8 +63,8 @@ router.get(
  *      tags:
  *      -  "story"
  *      description: Update Vote on a story
- *      security: 
- *      - bearerAuth: [] 
+ *      security:
+ *      - bearerAuth: []
  *      produces:
  *      -   "application/json"
  *      parameters:
@@ -81,7 +81,7 @@ router.get(
  *          "500":
  *              description: Unhandled error scenario has occured
  */
-router.put(
+router.patch(
     "/:storyId/vote",
     passport.authenticate("jwt", { session: false }),
     (req, res) => {
@@ -98,7 +98,7 @@ router.put(
                     console.log("Story vote counter has been increased");
                     res.send(result);
                 }
-            );
+            ).lean();
         } catch (err) {
             res.status(500).send({
                 message: "Internal Server Error",
@@ -147,7 +147,7 @@ router.get("/:storyId/chapter/:chapterId", (req, res) => {
                 });
             console.log("Chapter details have been fetched");
             res.send(chapter);
-        });
+        }).lean();
     } catch (err) {
         res.status(500).send({
             message: "Internal Server Error",
@@ -165,8 +165,8 @@ router.get("/:storyId/chapter/:chapterId", (req, res) => {
  *      description: Add comment on a chapter
  *      produces:
  *      -   "application/json"
- *      security: 
- *      -   bearerAuth: [] 
+ *      security:
+ *      -   bearerAuth: []
  *      parameters:
  *      - name: storyId
  *        description: ID of the story find the chapter from
@@ -186,7 +186,7 @@ router.get("/:storyId/chapter/:chapterId", (req, res) => {
  *          "500":
  *              description: Unhandled error scenario has occured
  */
-router.put(
+router.patch(
     "/:storyId/chapter/:chapterId/comment",
     passport.authenticate("jwt", { session: false }),
     (req, res) => {
@@ -205,7 +205,7 @@ router.put(
                     console.log("Comment has been added pushed");
                     res.send(result);
                 }
-            );
+            ).lean();
         } catch (err) {
             res.status(500).send({
                 message: "Internal Server Error",
@@ -224,8 +224,8 @@ router.put(
  *      description: Delete comment on a chapter
  *      produces:
  *      -   "application/json"
- *      security: 
- *      -   bearerAuth: [] 
+ *      security:
+ *      -   bearerAuth: []
  *      parameters:
  *      - name: storyId
  *        description: ID of the story find the chapter from
@@ -267,7 +267,7 @@ router.delete(
                     console.log("Comment has been deleted");
                     res.send(result);
                 }
-            );
+            ).lean();
         } catch (err) {
             res.status(500).send({
                 message: "Internal Server Error",
