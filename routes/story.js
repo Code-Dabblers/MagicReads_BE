@@ -25,7 +25,9 @@ const passport = require("passport");
  *          "200":
  *              description: A successful response
  *          "404":
- *              description: Not Found
+ *              description: Story with the passed id is not found
+ *          "500":
+ *              description: Unhandled error scenario has occured
  */
 
 router.get(
@@ -54,9 +56,31 @@ router.get(
     }
 );
 
-// @desc Story Vote update
-// @route PUT /story/:storyId/vote
-// @access Private
+/**
+ * @swagger
+ * /story/{storyId}/vote:
+ *  put:
+ *      tags:
+ *      -  "story"
+ *      description: Update Vote on a story
+ *      security: 
+ *      - bearerAuth: [] 
+ *      produces:
+ *      -   "application/json"
+ *      parameters:
+ *      - name: storyId
+ *        description: ID of the story to vote and return
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      responses:
+ *          "200":
+ *              description: A successful response
+ *          "404":
+ *              description: Story with the passed id is not found
+ *          "500":
+ *              description: Unhandled error scenario has occured
+ */
 router.put(
     "/:storyId/vote",
     passport.authenticate("jwt", { session: false }),
@@ -84,9 +108,34 @@ router.put(
     }
 );
 
-// @desc Chapter of the Story
-// @route GET /story/:storyId/chapter/:chapterId
-// @access Public
+/**
+ * @swagger
+ * /story/{storyId}/chapter/{chapterId}:
+ *  get:
+ *      tags:
+ *      -  "story"
+ *      description: Get the chapter of the story id and chapter id
+ *      produces:
+ *      -   "application/json"
+ *      parameters:
+ *      - name: storyId
+ *        description: ID of the story find the chapter from
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      - name: chapterId
+ *        description: ID of the chapter to find and return
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      responses:
+ *          "200":
+ *              description: A successful response
+ *          "404":
+ *              description: Story id or chapter id passed is not valid or found
+ *          "500":
+ *              description: Unhandled error scenario has occured
+ */
 router.get("/:storyId/chapter/:chapterId", (req, res) => {
     // res.send("fetch story details with that id");
     const { storyId, chapterId } = req.params;
@@ -107,9 +156,36 @@ router.get("/:storyId/chapter/:chapterId", (req, res) => {
     }
 });
 
-// @desc Add comment on a chapter
-// @route PUT /story/:storyId/chapter/:chapterId/comment
-// @access Private
+/**
+ * @swagger
+ * /story/{storyId}/chapter/{chapterId}/comment:
+ *  put:
+ *      tags:
+ *      -  "story"
+ *      description: Add comment on a chapter
+ *      produces:
+ *      -   "application/json"
+ *      security: 
+ *      -   bearerAuth: [] 
+ *      parameters:
+ *      - name: storyId
+ *        description: ID of the story find the chapter from
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      - name: chapterId
+ *        description: ID of the chapter to find, comment and return
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      responses:
+ *          "200":
+ *              description: A successful response
+ *          "404":
+ *              description: Story id or chapter id passed is not valid or found
+ *          "500":
+ *              description: Unhandled error scenario has occured
+ */
 router.put(
     "/:storyId/chapter/:chapterId/comment",
     passport.authenticate("jwt", { session: false }),
@@ -139,9 +215,41 @@ router.put(
     }
 );
 
-// @desc Delete comment on a chapter
-// @route PUT /story/:storyId/chapter/:chapterId/comment/:commentId
-// @access Private
+/**
+ * @swagger
+ * /story/{storyId}/chapter/{chapterId}/comment/{commentId}:
+ *  delete:
+ *      tags:
+ *      -  "story"
+ *      description: Delete comment on a chapter
+ *      produces:
+ *      -   "application/json"
+ *      security: 
+ *      -   bearerAuth: [] 
+ *      parameters:
+ *      - name: storyId
+ *        description: ID of the story find the chapter from
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      - name: chapterId
+ *        description: ID of the chapter to find, comment and return
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      - name: commentId
+ *        description: ID of the comment to find, and delete
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      responses:
+ *          "200":
+ *              description: A successful response
+ *          "404":
+ *              description: Story id, chapter id or comment id passed is not valid or found
+ *          "500":
+ *              description: Unhandled error scenario has occured
+ */
 router.delete(
     "/:storyId/chapter/:chapterId/comment/:commentId",
     passport.authenticate("jwt", { session: false }),
