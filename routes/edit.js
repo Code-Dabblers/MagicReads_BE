@@ -21,7 +21,7 @@ router.patch(
                     });
                 console.log("Story details have been edited");
                 res.send(result);
-            });
+            }).lean();
         } catch (err) {
             res.status(500).send({
                 message: "Internal Server Error",
@@ -52,7 +52,7 @@ router.patch(
                     console.log("Chapter details have been edited");
                     res.send(result);
                 }
-            );
+            ).lean();
         } catch (err) {
             res.status(500).send({
                 message: "Internal Server Error",
