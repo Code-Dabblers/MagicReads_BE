@@ -165,18 +165,60 @@ router.get(
 // @desc Add story to User's Library
 // @route POST /user/:storyId/readingList
 // @access Private/Public
-router.post("/:storyId/library", (req, res) => {
-    res.send("Add the story to user library");
-});
+router.put("/:storyId/library",     
+passport.authenticate("jwt", { session: false }),
+async (req, res) => {
+    try {
+        const { storyId } = req.params;
+        await Story.findOne({ _id: storyId }, async function (err, story) {
+            if (err) res.status(404).send({ message: err.message });
+            await User.updateOne(
+                { _id: req.user._id },
+                { $addToSet: { "library.list": story._id } },
+                (err, user) => {
+                    if (!user) throw err;
+                    res.status(200).send({
+                        message: "Story Added to the reading list",
+                        storyId: story._id,
+                    });
+                }
+            );
+        });
+    } catch (err) {
+        res.status(500).send({
+            message: "Internal Server Error",
+            error: err.message,
+        });
+    }
+}
+    //res.send("Add the story to user library");
+);
 
 // @desc User Library
 // @route GET /user/library
 // @access Private
-router.get("/library", (req, res) => {
-    res.send(
-        "User will have an array of id's of stories in their library array in db, fetch them and send them as response"
-    );
-});
+router.get("/library",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        try {
+            const userData = await User.findOne({ _id: req.user._id })
+                .populate({ path: "library.list", model: "Story" })
+                .lean();
+            res.status(200).send({
+                message: "Library Found",
+                readingList: userData.readingList,
+            });
+        } catch (err) {
+            res.status(500).send({
+                message: "Internal Server Error",
+                error: err.message,
+            });
+        }
+    }
+    // res.send(
+    //     "User will have an array of id's of stories in their library array in db, fetch them and send them as response"
+    // );
+);
 
 // @desc User Settings
 // @route GET /user/settings
