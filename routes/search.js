@@ -7,6 +7,29 @@ const express = require("express"),
 // @desc Serach from query
 // @route GET /search/:query
 // @access Public
+/**
+ * @swagger
+ * /search/{query}?:
+ *  get:
+ *      tags:
+ *      -  "search"
+ *      description: Get the story based on query parameters & tags
+ *      produces:
+ *      -   "application/json"
+ *      parameters:
+ *      - name: query
+ *        description: ID of the story to return
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      responses:
+ *          "200":
+ *              description: A successful response
+ *          "404":
+ *              description: Story with the passed query or tags  is not found
+ *          "500":
+ *              description: Unhandled error scenario has occured
+ */
 router.get("/:query?", async (req, res) => {
     const { query } = req.params;
     const { tags } = req.query;
