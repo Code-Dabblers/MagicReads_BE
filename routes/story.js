@@ -149,8 +149,8 @@ router.get("/:storyId/chapter/:chapterId", async (req, res) => {
             });
         res.send({
             success: true,
-            chapterData: chapter,
             message: "Chapter details have been fetched",
+            chapterData: chapter,
         });
     } catch (err) {
         res.status(500).send({
@@ -194,10 +194,12 @@ router.delete("/:storyId/chapter/:chapterId", async (req, res) => {
         const { storyId, chapterId } = req.params;
         const chapter = await Chapter.findOne({ _id: chapterId }).lean();
         await Comment.deleteMany({ _id: { $all: chapter.comments } });
-        await Story.updateOne(
-            { _id: storyId },
-            { $pull: { chapters: chapterId } }
-        );
+        await Story.findByIdAndUpdate(storyId, {
+            $pull: { chapters: chapterId },
+        });
+        await Story.findByIdAndUpdate(storyId, {
+            $inc: { totalChapters: -1 },
+        });
         await Chapter.deleteOne({ _id: chapterId });
         res.status(200).send({
             success: true,
@@ -312,12 +314,21 @@ router.patch(
     async (req, res) => {
         try {
             const { storyId, chapterId, commentId } = req.params;
-            const comment = await Comment.findOneAndDelete({ _id: commentId });
+            const comment = await Comment.findOneAndDelete({
+                _id: commentId,
+            }).lean();
             console.log(comment);
-            await Chapter.findOneAndUpdate(
+            const chapter = await Chapter.findOneAndUpdate(
                 { _id: chapterId, storyId },
-                { $pull: { comments: commentId } }
-            );
+                { $pull: { comments: commentId } },
+                { new: true }
+            ).lean();
+            if (!chapter || !comment) {
+                return res.status(404).send({
+                    success: false,
+                    message: "Invalid Comment or Chapter ID",
+                });
+            }
             res.send({
                 success: true,
                 message: "Comment deleted successfully",
