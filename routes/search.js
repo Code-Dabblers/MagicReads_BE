@@ -13,7 +13,7 @@ const express = require("express"),
  *  get:
  *      tags:
  *      -  "search"
- *      description: Get the story based on query parameters & tags
+ *      description: Get the story based on tags
  *      produces:
  *      -   "application/json"
  *      parameters:
@@ -22,12 +22,6 @@ const express = require("express"),
  *              in: "path"
  *              type: "string"
  *              required: true
- *            - in: query
- *              name: tags
- *              description: Type any tags of the stories for eg horror
- *              type: "string"
- *              required: false
- *
  *      responses:
  *          "200":
  *              description: A successful response
