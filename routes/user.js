@@ -102,11 +102,17 @@ router.patch(
     async (req, res) => {
         try {
             const { storyId } = req.params;
+            const story = await Story.findOne({ id: storyId }).lean();
+            if (!story)
+                return res
+                    .status(401)
+                    .send({ success: false, message: "Invalid story ID" });
             await User.findByIdAndUpdate(
                 req.user._id,
                 { $addToSet: { "readingList.list": storyId } },
                 { new: true }
             );
+
             res.status(200).send({
                 success: true,
                 message: "Story Added to the reading list",
