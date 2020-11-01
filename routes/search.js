@@ -37,27 +37,32 @@ const express = require("express"),
  *              description: Unhandled error scenario has occured
  */
 router.get("/:query", async (req, res) => {
-    const { query } = req.params;
-    let tags = query.split(" ");
-    const newTags = tags.map((tag) => {
-        if (tag.indexOf("#") !== -1) {
-            return tag.slice(1);
-        }
-        return tag;
-    });
-    await Story.find({ tags: { $in: newTags } })
-        .populate({ path: "chapters", model: Chapter })
-        .then((stories) => {
-            if (stories.length === 0) res.send({ message: "NO STORY FOUND" });
-            else res.send({ storyData: stories, message: "Stories Found" });
-        })
-        .catch((err) => {
-            res.status(500).send({
-                message: "Failed: to search via query",
-                success: true,
-                error: err.message,
-            });
+    try {
+        const { query } = req.params;
+        let tags = query.split(" ");
+        const newTags = tags.map((tag) => {
+            if (tag.indexOf("#") !== -1) {
+                return tag.slice(1);
+            }
+            return tag;
         });
+        const stories = await Story.find({ tags: { $in: newTags } })
+            .populate({ path: "chapters", model: Chapter })
+            .lean();
+        if (stories.length === 0)
+            return res.send({ message: "NO STORY FOUND" });
+        res.send({
+            message: "Stories Found",
+            success: true,
+            storyData: stories,
+        });
+    } catch (err) {
+        res.status(500).send({
+            message: "Failed: to search via query",
+            success: false,
+            error: err.message,
+        });
+    }
 });
 
 module.exports = router;
