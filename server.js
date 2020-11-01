@@ -121,7 +121,6 @@ app.use(function (req, res, next) {
  * components:
  *      securitySchemes:
  *          bearerAuth:
- *              name: Authorization
  *              description: "JWT Auth with Bearer Token"
  *              in: header
  *              type: http

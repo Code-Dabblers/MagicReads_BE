@@ -25,6 +25,7 @@ storySchema.index({
     storyName: "text",
     genre: "text",
     summary: "text",
+    tags: "text",
     tags: 1,
 });
 module.exports = mongoose.model("Story", storySchema);
