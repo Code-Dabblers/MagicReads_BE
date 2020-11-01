@@ -92,12 +92,13 @@ router.get(
 router.patch(
     "/:storyId/vote",
     passport.authenticate("jwt", { session: false }),
-    (req, res) => {
+    async (req, res) => {
         // res.send("increase the story vote counter");
         try {
-            Story.findByIdAndUpdate(
+            await Story.findByIdAndUpdate(
                 req.params.storyId,
                 { $inc: { voteCount: 1 } },
+                { lean: true },
                 (err, story) => {
                     if (err)
                         return res.status(401).send({
@@ -151,10 +152,10 @@ router.patch(
  *          "500":
  *              description: Unhandled error scenario has occured
  */
-router.get("/:storyId/chapter/:chapterId", (req, res) => {
+router.get("/:storyId/chapter/:chapterId", async (req, res) => {
     const { storyId, chapterId } = req.params;
     try {
-        Chapter.findOne(
+        await Chapter.findOne(
             { _id: chapterId, storyId },
             null,
             { lean: true },
@@ -165,7 +166,7 @@ router.get("/:storyId/chapter/:chapterId", (req, res) => {
                         error: err.message,
                     });
                 if (!chapter)
-                    res.status(404).send({
+                    return res.status(404).send({
                         message: "Invalid Story or Chapter ID",
                     });
                 res.send({
