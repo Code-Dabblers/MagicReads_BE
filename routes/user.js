@@ -7,72 +7,41 @@ const Story = require("../models/Story");
 const BCRYPT_SALT_ROUNDS = 12;
 const User = require("../models/User");
 
-// @desc Landing page
-// @route GET /user
-// @access Private
-router.get("/", (req, res) => {
-    res.send("user dashboard");
-});
-
 // @desc Register page
 // @route POST /user/register
 // @access Public
-router.post("/register", (req, res) => {
+router.post("/register", async (req, res) => {
     try {
         const { email, password, firstName, lastName, username } = req.body;
-        User.findOne({ email: email }, (err, user) => {
-            if (err)
-                return res.status(401).send({
-                    message: "The credential information is incorrect",
-                    error: err.message,
-                });
-            if (user) {
-                console.log("email already taken");
-                res.status(201).send({
-                    auth: false,
-                    data: "user exists already",
-                });
-            } else {
-                bcrypt
-                    .hash(password, BCRYPT_SALT_ROUNDS)
-                    .then((hashedPassword) => {
-                        User.create(
-                            {
-                                username,
-                                password: hashedPassword,
-                                email,
-                                firstName,
-                                lastName,
-                            },
-                            (err, user) => {
-                                if (err)
-                                    return res.status(401).send({
-                                        message:
-                                            "The credential information is incorrect",
-                                        error: err.message,
-                                    });
-                                const token = jwt.sign(
-                                    { _id: user._id },
-                                    process.env.JWT_SECRET
-                                );
-                                res.status(200).send({
-                                    auth: true,
-                                    token: token,
-                                    message: "User registration successful!",
-                                });
-                            }
-                        );
-                    })
-                    .catch((err) => {
-                        res.status(500).send({
-                            message: "Internal Server Error",
-                            error: err.message,
-                        });
-                    });
-            }
-        });
+        const user = await User.findOne({ email }).lean();
+        if (user) {
+            res.status(201).send({
+                success: false,
+                data: "User with this email already exists",
+            });
+        } else {
+            const hashedPassword = await bcrypt.hash(
+                password,
+                BCRYPT_SALT_ROUNDS
+            );
+            const user = await User.create({
+                username,
+                password: hashedPassword,
+                email,
+                firstName,
+                lastName,
+            });
+            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+            res.status(200).send({
+                success: true,
+                auth: true,
+                token: token,
+                message: "User registration successful!",
+            });
+        }
     } catch (err) {
         res.status(500).send({
+            success: false,
             message: "Internal Server Error",
             error: err.message,
         });
@@ -82,69 +51,70 @@ router.post("/register", (req, res) => {
 // @desc Login page
 // @route POST /user/login
 // @access Public
-router.post("/login", (req, res) => {
-    const { email, password } = req.body;
-    User.findOne({ email: email })
-        .then((user) => {
-            if (user === null) {
+router.post("/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email: email }).lean();
+        if (user === null) {
+            return res.send({
+                message: "That email is not registered.",
+            });
+        }
+        bcrypt.compare(password, user.password, (err, isMatch) => {
+            if (err)
+                return res.status(401).send({
+                    success: false,
+                    message: "Some credentials are missing",
+                    error: err.message,
+                });
+            if (isMatch) {
+                const token = jwt.sign(
+                    { _id: user._id },
+                    process.env.JWT_SECRET
+                );
+                res.status(200).send({
+                    success: true,
+                    auth: true,
+                    token: token,
+                    message: "User found & logged in",
+                });
+            } else {
                 res.send({
-                    message: "That email is not registered.",
+                    message: "Incorrect Password",
                 });
             }
-            bcrypt.compare(password, user.password, (err, isMatch) => {
-                if (err)
-                    return res.status(401).send({
-                        message: "The credential information is incorrect",
-                        error: err.message,
-                    });
-
-                if (isMatch) {
-                    const token = jwt.sign(
-                        { _id: user._id },
-                        process.env.JWT_SECRET
-                    );
-                    res.status(200).send({
-                        auth: true,
-                        token: token,
-                        message: "User found & logged in",
-                    });
-                } else {
-                    res.send({
-                        message: "Incorrect Password",
-                    });
-                }
-            });
-        })
-        .catch((error) =>
-            res.status(500).send({ error, message: "Internal Server Error" })
-        );
+        });
+    } catch (err) {
+        res.status(500).send({
+            success: false,
+            message: "Internal Server Error",
+            error: err.message,
+        });
+    }
 });
 
 // @desc Add story to User's Reading List
-// @route PUT /user/:storyId/readingList
+// @route PATCH /user/:storyId/readingList
 // @access Private
-router.put(
+router.patch(
     "/:storyId/readingList",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
             const { storyId } = req.params;
-            await Story.findOne({ _id: storyId }, async function (err, story) {
-                if (err) return res.status(401).send({ error: err.message });
-                await User.updateOne(
-                    { _id: req.user._id },
-                    { $addToSet: { "readingList.list": story._id } },
-                    (err, user) => {
-                        if (!user) throw err;
-                        res.status(200).send({
-                            message: "Story Added to the reading list",
-                            storyId: story._id,
-                        });
-                    }
-                );
+            await User.findByIdAndUpdate(
+                req.user._id,
+                { $addToSet: { "readingList.list": storyId } },
+                { new: true }
+            ).populate;
+            res.status(200).send({
+                success: true,
+                message: "Story Added to the reading list",
+                storyId: storyId,
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -164,11 +134,13 @@ router.get(
                 .populate({ path: "readingList.list", model: "Story" })
                 .lean();
             res.status(200).send({
+                success: true,
                 message: "Reading List Found",
-                readingList: userData.readingList,
+                readingList: userData.readingList.list,
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -177,41 +149,37 @@ router.get(
 );
 
 // @desc Add story to User's Library
-// @route POST /user/:storyId/readingList
+// @route PATCH /user/:storyId/readingList
 // @access Private/Public
-router.put("/:storyId/library",     
-passport.authenticate("jwt", { session: false }),
-async (req, res) => {
-    try {
-        const { storyId } = req.params;
-        await Story.findOne({ _id: storyId }, async function (err, story) {
-            if (err) res.status(404).send({ message: err.message });
-            await User.updateOne(
-                { _id: req.user._id },
-                { $addToSet: { "library.list": story._id } },
-                (err, user) => {
-                    if (!user) throw err;
-                    res.status(200).send({
-                        message: "Story Added to the reading list",
-                        storyId: story._id,
-                    });
-                }
-            );
-        });
-    } catch (err) {
-        res.status(500).send({
-            message: "Internal Server Error",
-            error: err.message,
-        });
+router.patch(
+    "/:storyId/library",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        try {
+            const { storyId } = req.params;
+            await User.findByIdAndUpdate(req.user._id, {
+                $addToSet: { "library.list": storyId },
+            }).lean();
+            res.status(200).send({
+                success: true,
+                message: "Story Added to the library list",
+                storyId: storyId,
+            });
+        } catch (err) {
+            res.status(500).send({
+                success: false,
+                message: "Internal Server Error",
+                error: err.message,
+            });
+        }
     }
-}
-    //res.send("Add the story to user library");
 );
 
 // @desc User Library
 // @route GET /user/library
 // @access Private
-router.get("/library",
+router.get(
+    "/library",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
@@ -219,19 +187,18 @@ router.get("/library",
                 .populate({ path: "library.list", model: "Story" })
                 .lean();
             res.status(200).send({
+                success: true,
                 message: "Library Found",
-                readingList: userData.readingList,
+                library: userData.library.list,
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
         }
     }
-    // res.send(
-    //     "User will have an array of id's of stories in their library array in db, fetch them and send them as response"
-    // );
 );
 
 // @desc User Settings
@@ -242,20 +209,21 @@ router.get(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
-            await User.findOne({ _id: req.user._id }, (err, user) => {
-                if (err) return res.status(401).send({ error: err.message });
-                const data = {
-                    username: user.username,
-                    firstname: user.firstName,
-                    lastname: user.lastName,
-                };
-                res.status(200).send({
-                    userData: data,
-                    message: "Current User Settings",
-                });
+            const user = await User.findOne({ _id: req.user._id }).lean();
+            const { username, firstName, lastName } = user;
+            const data = {
+                username,
+                firstName,
+                lastName,
+            };
+            res.status(200).send({
+                success: true,
+                message: "Current User Settings",
+                userData: data,
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -264,38 +232,41 @@ router.get(
 );
 
 // @desc User Settings
-// @route PUT /user/settings
+// @route PATCH /user/settings
 // @access Private
-router.put(
+router.patch(
     "/settings",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
             const { username, firstName, lastName } = req.body;
             const dataObj = {};
-            if (username) dataObj.username = username;
+            if (username) {
+                const user = await User.findOne({ username: username }).lean();
+                if (user.username === username)
+                    return res.status(409).send({
+                        success: false,
+                        message: "Username already exists",
+                    });
+                dataObj.username = username;
+            }
             if (firstName) dataObj.firstName = firstName;
             if (lastName) dataObj.lastName = lastName;
-            await User.findOne({ _id: req.user._id }, async (err, user) => {
-                if (err) return res.status(401).send({ error: err.message });
-                if (!user) res.status(404).send({ message: "User not found" });
-                await User.updateOne({ _id: user._id }, { $set: dataObj });
-                res.status(200).send({ message: "Updated user settings" });
+            await User.findByIdAndUpdate(req.user._id, {
+                $set: dataObj,
+            }).lean();
+            res.status(200).send({
+                success: true,
+                message: "Updated user settings",
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
         }
     }
 );
-
-// @desc Logout page
-// @route GET /user/logout
-// @access Private
-router.get("/logout", (req, res) => {
-    res.send("User Logged Out");
-});
 
 module.exports = router;
