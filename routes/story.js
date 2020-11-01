@@ -34,11 +34,11 @@ const passport = require("passport");
 router.get(
     "/:storyId",
     passport.authenticate("jwt", { session: false }),
-    (req, res) => {
+    async (req, res) => {
         const { storyId } = req.params;
         console.log(storyId);
         try {
-            Story.findOne(
+            await Story.findOne(
                 { _id: storyId },
                 null,
                 { lean: true },
@@ -91,27 +91,31 @@ router.get(
  *              description: Unhandled error scenario has occured
  */
 
-router.delete("/:storyId", async (req, res) => {
-    const { storyId } = req.params;
-    try {
-        const storyData = await Story.deleteOne({ _id: storyId });
-        if (!storyData)
-            return res.status(404).send({ message: "Invalid story Id" });
+router.delete(
+    "/:storyId",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        const { storyId } = req.params;
+        try {
+            const storyData = await Story.deleteOne({ _id: storyId });
+            if (!storyData)
+                return res.status(404).send({ message: "Invalid story Id" });
 
-        const chapterData = await Chapter.deleteMany({ storyId });
-        const commentData = await Comment.deleteMany({ storyId });
-        console.log("Story with given ID has been deleted");
-        res.status(200).send({
-            message: "Story with given ID has been deleted",
-        });
-    } catch (err) {
-        console.log(err);
-        res.status(500).send({
-            message: "Internal Server Error",
-            error: err.message,
-        });
+            const chapterData = await Chapter.deleteMany({ storyId });
+            const commentData = await Comment.deleteMany({ storyId });
+            console.log("Story with given ID has been deleted");
+            res.status(200).send({
+                message: "Story with given ID has been deleted",
+            });
+        } catch (err) {
+            console.log(err);
+            res.status(500).send({
+                message: "Internal Server Error",
+                error: err.message,
+            });
+        }
     }
-});
+);
 
 /**
  * @swagger
