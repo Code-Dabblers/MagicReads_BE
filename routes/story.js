@@ -38,16 +38,23 @@ router.get(
         const { storyId } = req.params;
         console.log(storyId);
         try {
-            const stories = await Story.findOne(
+            await Story.findOne(
                 { _id: storyId },
+                null,
+                { lean: true },
                 (err, story) => {
                     if (!story)
-                        res.status(404).send({ message: "Invalid story Id" });
-                    return story;
+                        return res
+                            .status(404)
+                            .send({ message: "Invalid story Id" });
+                    if (err)
+                        return res.status(401).send({
+                            message: "Something went wrong!",
+                            error: err.message,
+                        });
+                    res.send({ storyData: story, message: "Story Found" });
                 }
             );
-
-            res.send({ storyData: stories, message: "Story Found" });
         } catch (err) {
             res.status(500).send({
                 message: "Internal Server Error",
@@ -92,6 +99,11 @@ router.patch(
                 req.params.storyId,
                 { $inc: { voteCount: 1 } },
                 (err, story) => {
+                    if (err)
+                        return res.status(401).send({
+                            message: "Something went wrong!",
+                            error: err.message,
+                        });
                     if (!story)
                         res.status(404).send({
                             message: "Something went wrong",
@@ -140,17 +152,28 @@ router.patch(
  *              description: Unhandled error scenario has occured
  */
 router.get("/:storyId/chapter/:chapterId", (req, res) => {
-    // res.send("fetch story details with that id");
     const { storyId, chapterId } = req.params;
     try {
-        Chapter.findOne({ _id: chapterId, storyId }, (err, chapter) => {
-            if (!chapter)
-                res.status(404).send({
-                    message: "Invalid Story or Chapter ID",
+        Chapter.findOne(
+            { _id: chapterId, storyId },
+            null,
+            { lean: true },
+            (err, chapter) => {
+                if (err)
+                    return res.status(401).send({
+                        message: "Something went wrong!",
+                        error: err.message,
+                    });
+                if (!chapter)
+                    res.status(404).send({
+                        message: "Invalid Story or Chapter ID",
+                    });
+                res.send({
+                    chapterData: chapter,
+                    message: "Chapter details have been fetched",
                 });
-            console.log("Chapter details have been fetched");
-            res.send(chapter);
-        });
+            }
+        );
     } catch (err) {
         res.status(500).send({
             message: "Internal Server Error",
@@ -268,12 +291,26 @@ router.patch(
             await Comment.findOneAndDelete(
                 { _id: commentId },
                 async (err, comment) => {
+                    if (!comment)
+                        return res.status(401).send({
+                            message: "Something went wrong!",
+                            error: err.message,
+                        });
                     if (err)
-                        return res.status(401).send({ error: err.message });
+                        return res.status(401).send({
+                            message: "Something went wrong!",
+                            error: err.message,
+                        });
                     await Chapter.findOneAndUpdate(
                         { _id: chapterId, storyId },
                         { $pull: { comments: comment._id } }
-                    );
+                    ).catch((err) => {
+                        if (err)
+                            return res.status(401).send({
+                                message: "Something went wrong!",
+                                error: err.message,
+                            });
+                    });
                     res.send({ message: "Comment deleted successfully" });
                 }
             );
