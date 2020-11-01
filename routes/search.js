@@ -40,14 +40,16 @@ router.get("/:query", async (req, res) => {
             }
             return tag;
         });
-        const stories = await Story.find({ tags: { $in: newTags } })
+        const stories = await Story.find({
+            $and: [{ tags: { $in: newTags } }, { visibility: "public" }],
+        })
             .populate({ path: "chapters", model: Chapter })
             .lean();
         if (stories.length === 0)
             return res.send({ message: "NO STORY FOUND" });
         res.send({
-            message: "Stories Found",
             success: true,
+            message: "Stories Found",
             storyData: stories,
         });
     } catch (err) {
