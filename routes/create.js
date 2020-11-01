@@ -18,7 +18,7 @@ router.post(
             req.body.author.username = username;
             req.body.author.userId = _id;
             const story = await Story.create(req.body);
-            await User.findByIdAnduUpdate(_id, {
+            await User.findByIdAndUpdate(_id, {
                 $push: { myStories: story._id },
             });
 
@@ -43,7 +43,7 @@ router.post(
 // @route POST /create/story/:storyId/chapter
 // @access Private
 router.post(
-    "/:storyId/chapter",
+    "/story/:storyId/chapter",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {

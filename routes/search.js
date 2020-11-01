@@ -46,7 +46,7 @@ router.get("/:query", async (req, res) => {
             .populate({ path: "chapters", model: Chapter })
             .lean();
         if (stories.length === 0)
-            return res.send({ message: "NO STORY FOUND" });
+            return res.send({ success: false, message: "NO STORY FOUND" });
         res.send({
             success: true,
             message: "Stories Found",
