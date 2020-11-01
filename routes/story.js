@@ -321,7 +321,6 @@ router.patch(
             const comment = await Comment.findOneAndDelete({
                 _id: commentId,
             }).lean();
-            console.log(comment);
             const chapter = await Chapter.findOneAndUpdate(
                 { _id: chapterId, storyId },
                 { $pull: { comments: commentId } },

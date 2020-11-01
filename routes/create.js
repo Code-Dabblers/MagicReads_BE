@@ -55,7 +55,6 @@ router.post(
 
             const chapter = await Chapter.create({ ...req.body, storyId });
             if (!chapter) res.status(404).send({ message: "Invalid story Id" });
-            console.log(chapter);
             await Story.findByIdAndUpdate(storyId, {
                 $push: { chapters: chapter._id },
             });

@@ -4,14 +4,6 @@ const User = require("../models/User");
 const Story = require("../models/Story");
 const Chapter = require("../models/Chapter");
 
-router.get("/", async (req, res) => {
-    try {
-        res.redirect("/api-docs");
-    } catch (err) {
-        console.log(err);
-    }
-});
-
 /**
  * @swagger
  * /stories:
