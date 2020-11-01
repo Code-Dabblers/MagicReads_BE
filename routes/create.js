@@ -17,22 +17,15 @@ router.post(
             req.body.author = {};
             req.body.author.username = username;
             req.body.author.userId = _id;
-            await Story.create(req.body, async function (err, story) {
-                if (err) res.status(404).send({ message: err.message });
-                console.log(story);
-                await User.updateOne(
-                    { _id: _id },
-                    { $push: { myStories: story.storyId } }
-                ).catch((err) =>
-                    res.status(500).send({
-                        message: "Internal Server Error",
-                        error: err.message,
-                    })
-                );
-                res.status(200).send({
-                    message: "Story Created",
-                    storyId: story._id,
-                });
+            const story = await Story.create(req.body);
+            await User.updateOne(
+                { _id: _id },
+                { $push: { myStories: story._id } }
+            );
+            res.status(200).send({
+                message: "Story Created",
+                storyId: story._id,
+                storyData: story,
             });
         } catch (err) {
             res.status(500).send({
@@ -58,30 +51,21 @@ router.post(
             req.body.author.userId = _id;
             const { storyId } = req.params;
 
-            // Checking if a story exists
-            await Story.findOne({ _id: storyId }, async (err, story) => {
-                console.log(story);
-                if (!story)
-                    res.status(404).send({ message: "Invalid story Id" });
-                await Chapter.create(
-                    { ...req.body, storyId },
-                    async (err, chapter) => {
-                        if (err) throw err;
-                        console.log(chapter);
-                        await Story.updateOne(
-                            { _id: storyId },
-                            {
-                                $push: {
-                                    chapters: chapter._id,
-                                },
-                            }
-                        );
-                        res.send("Chapter has been created");
-                    }
-                );
+            const chapter = await Chapter.create({ ...req.body, storyId });
+            if (!chapter) res.status(404).send({ message: "Invalid story Id" });
+            await Story.findByIdAndUpdate(storyId, {
+                $push: { chapters: chapter._id },
+            });
+            res.send({
+                message: "Chapter has been created",
+                chapterId: chapter._id,
+                chapter,
             });
         } catch (err) {
-            res.status(500).send({ message: "Internal Server Error" });
+            res.status(500).send({
+                message: "Internal Server Error",
+                error: err.message,
+            });
         }
     }
 );
