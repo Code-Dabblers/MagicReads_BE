@@ -91,13 +91,15 @@ router.patch(
             Story.findByIdAndUpdate(
                 req.params.storyId,
                 { $inc: { voteCount: 1 } },
-                (err, result) => {
-                    if (!result)
+                (err, story) => {
+                    if (!story)
                         res.status(404).send({
-                            message: "Story with this ID is not found",
+                            message: "Something went wrong",
                         });
                     console.log("Story vote counter has been increased");
-                    res.send(result);
+                    res.status(200).send({
+                        message: "Story vote counter has been increased",
+                    });
                 }
             );
         } catch (err) {
@@ -203,7 +205,7 @@ router.post(
                 console.log(comment);
                 if (err)
                     return res.status(401).send({
-                        error: err.message,
+                        message: "Something went wrong",
                     });
                 await Chapter.updateOne(
                     { _id: comment.chapterId },
