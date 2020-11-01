@@ -38,6 +38,13 @@ And you are good to go!
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/czechyoungcoder">
+            <img src="https://avatars1.githubusercontent.com/u/38953979?v=4" width="100;" alt="czechyoungcoder"/>
+            <br />
+            <sub><b>Jakub</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/sphoorthig">
             <img src="https://avatars0.githubusercontent.com/u/59635329?v=4" width="100;" alt="sphoorthig"/>
             <br />
@@ -56,13 +63,6 @@ And you are good to go!
             <img src="https://avatars2.githubusercontent.com/u/40513845?v=4" width="100;" alt="najimali"/>
             <br />
             <sub><b>Najim Ali</b></sub>
-        </a>
-    </td>
-    <td align="center">
-        <a href="https://github.com/czechyoungcoder">
-            <img src="https://avatars1.githubusercontent.com/u/38953979?v=4" width="100;" alt="czechyoungcoder"/>
-            <br />
-            <sub><b>Jakub</b></sub>
         </a>
     </td></tr>
 </table>
