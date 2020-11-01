@@ -49,6 +49,59 @@ router.get(
                 storyData: story,
             });
         } catch (err) {
+            console.log(err);
+            res.status(500).send({
+                message: "Internal Server Error",
+                error: err.message,
+            });
+        }
+    }
+);
+
+/**
+ * @swagger
+ * /story/{storyId}:
+ *  delete:
+ *      security:
+ *          - bearerAuth: []
+ *      tags:
+ *      -  "story"
+ *      description: Deůete the story with the story id
+ *      produces:
+ *      -   "application/json"
+ *      parameters:
+ *      - name: storyId
+ *        description: ID of the story to return
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      responses:
+ *          "200":
+ *              description: A successful response
+ *          "404":
+ *              description: Story with the passed id is not found
+ *          "500":
+ *              description: Unhandled error scenario has occured
+ */
+
+router.delete(
+    "/:storyId",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        const { storyId } = req.params;
+        try {
+            const storyData = await Story.deleteOne({ _id: storyId });
+            if (!storyData)
+                return res.status(404).send({ message: "Invalid story Id" });
+
+            const chapterData = await Chapter.deleteMany({ storyId });
+            const commentData = await Comment.deleteMany({ storyId });
+            console.log("Story with given ID has been deleted");
+            res.status(200).send({
+                message: "Story with given ID has been deleted",
+            });
+        } catch (err) {
+            console.log(err);
             res.status(500).send({
                 success: false,
                 message: "Internal Server Error",
