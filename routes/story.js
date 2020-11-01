@@ -35,26 +35,19 @@ router.get(
     "/:storyId",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
-        const { storyId } = req.params;
-        console.log(storyId);
         try {
-            await Story.findOne(
-                { _id: storyId },
-                null,
-                { lean: true },
-                (err, story) => {
-                    if (!story)
-                        return res
-                            .status(404)
-                            .send({ message: "Invalid story Id" });
-                    if (err)
-                        return res.status(401).send({
-                            message: "Something went wrong!",
-                            error: err.message,
-                        });
-                    res.send({ storyData: story, message: "Story Found" });
-                }
-            );
+            const { storyId } = req.params;
+            const story = await Story.findOne({ _id: storyId }).lean();
+            if (!story)
+                return res
+                    .status(404)
+                    .send({ success: false, message: "Invalid story ID" });
+
+            res.send({
+                success: true,
+                message: "Story Found",
+                storyData: story,
+            });
         } catch (err) {
             res.status(500).send({
                 success: false,
@@ -94,28 +87,19 @@ router.patch(
     "/:storyId/vote",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
-        // res.send("increase the story vote counter");
         try {
-            await Story.findByIdAndUpdate(
-                req.params.storyId,
-                { $inc: { voteCount: 1 } },
-                { lean: true },
-                (err, story) => {
-                    if (err)
-                        return res.status(401).send({
-                            message: "Something went wrong!",
-                            error: err.message,
-                        });
-                    if (!story)
-                        res.status(404).send({
-                            message: "Something went wrong",
-                        });
-                    console.log("Story vote counter has been increased");
-                    res.status(200).send({
-                        message: "Story vote counter has been increased",
-                    });
-                }
-            );
+            const story = await Story.findByIdAndUpdate(req.params.storyId, {
+                $inc: { voteCount: 1 },
+            }).lean();
+            if (!story)
+                res.status(404).send({
+                    success: false,
+                    message: "Invalid story ID",
+                });
+            res.status(200).send({
+                success: true,
+                message: "Story vote counter has been increased",
+            });
         } catch (err) {
             res.status(500).send({
                 success: false,
@@ -155,28 +139,19 @@ router.patch(
  *              description: Unhandled error scenario has occured
  */
 router.get("/:storyId/chapter/:chapterId", async (req, res) => {
-    const { storyId, chapterId } = req.params;
     try {
-        await Chapter.findOne(
-            { _id: chapterId, storyId },
-            null,
-            { lean: true },
-            (err, chapter) => {
-                if (err)
-                    return res.status(401).send({
-                        message: "Something went wrong!",
-                        error: err.message,
-                    });
-                if (!chapter)
-                    return res.status(404).send({
-                        message: "Invalid Story or Chapter ID",
-                    });
-                res.send({
-                    chapterData: chapter,
-                    message: "Chapter details have been fetched",
-                });
-            }
-        );
+        const { storyId, chapterId } = req.params;
+        const chapter = await Chapter.findOne({ _id: chapterId, storyId });
+        if (!chapter)
+            return res.status(404).send({
+                success: false,
+                message: "Invalid Story or Chapter ID",
+            });
+        res.send({
+            success: true,
+            chapterData: chapter,
+            message: "Chapter details have been fetched",
+        });
     } catch (err) {
         res.status(500).send({
             success: false,
@@ -214,10 +189,20 @@ router.get("/:storyId/chapter/:chapterId", async (req, res) => {
  *          "500":
  *              description: Unhandled error scenario has occured
  */
-router.delete("/:storyId/chapter/:chapterId", (req, res) => {
-    const { storyId, chapterId } = req.params;
+router.delete("/:storyId/chapter/:chapterId", async (req, res) => {
     try {
-        Chapter.findOneAndDelete({ _id: chapterId });
+        const { storyId, chapterId } = req.params;
+        const chapter = await Chapter.findOne({ _id: chapterId }).lean();
+        await Comment.deleteMany({ _id: { $all: chapter.comments } });
+        await Story.updateOne(
+            { _id: storyId },
+            { $pull: { chapters: chapterId } }
+        );
+        await Chapter.deleteOne({ _id: chapterId });
+        res.status(200).send({
+            success: true,
+            message: "Chapter deleted successfully",
+        });
     } catch (err) {
         res.status(500).send({
             success: false,
@@ -267,21 +252,14 @@ router.post(
             const { username, _id: userId } = req.user;
             const { comment } = req.body;
             const dataObj = { storyId, chapterId, comment, username, userId };
-            console.log(dataObj);
-
-            await Comment.create(dataObj, async (err, comment) => {
-                console.log(comment);
-                if (err)
-                    return res.status(401).send({
-                        message: "Something went wrong",
-                    });
-                await Chapter.updateOne(
-                    { _id: comment.chapterId },
-                    { $push: { comments: comment._id } }
-                );
-                res.status(200).send({
-                    message: "Comment added successfully",
-                });
+            const commentData = await Comment.create(dataObj);
+            await Chapter.updateOne(
+                { _id: chapterId },
+                { $push: { comments: commentData._id } }
+            );
+            res.status(200).send({
+                success: true,
+                message: "Comment added successfully",
             });
         } catch (err) {
             res.status(500).send({
@@ -334,32 +312,16 @@ router.patch(
     async (req, res) => {
         try {
             const { storyId, chapterId, commentId } = req.params;
-            await Comment.findOneAndDelete(
-                { _id: commentId },
-                async (err, comment) => {
-                    if (!comment)
-                        return res.status(401).send({
-                            message: "Something went wrong!",
-                            error: err.message,
-                        });
-                    if (err)
-                        return res.status(401).send({
-                            message: "Something went wrong!",
-                            error: err.message,
-                        });
-                    await Chapter.findOneAndUpdate(
-                        { _id: chapterId, storyId },
-                        { $pull: { comments: comment._id } }
-                    ).catch((err) => {
-                        if (err)
-                            return res.status(401).send({
-                                message: "Something went wrong!",
-                                error: err.message,
-                            });
-                    });
-                    res.send({ message: "Comment deleted successfully" });
-                }
+            const comment = await Comment.findOneAndDelete({ _id: commentId });
+            console.log(comment);
+            await Chapter.findOneAndUpdate(
+                { _id: chapterId, storyId },
+                { $pull: { comments: commentId } }
             );
+            res.send({
+                success: true,
+                message: "Comment deleted successfully",
+            });
         } catch (err) {
             res.status(500).send({
                 success: false,
