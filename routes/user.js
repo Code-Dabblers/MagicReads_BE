@@ -27,8 +27,11 @@ router.post("/register", async (req, res) => {
                 data: "User with this email already exists",
             });
         } else {
-            const hashedPassword = bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
-            await User.create({
+            const hashedPassword = await bcrypt.hash(
+                password,
+                BCRYPT_SALT_ROUNDS
+            );
+            const user = await User.create({
                 username,
                 password: hashedPassword,
                 email,
@@ -54,17 +57,22 @@ router.post("/register", async (req, res) => {
 // @desc Login page
 // @route POST /user/login
 // @access Public
-router.post("/login", (req, res) => {
-    const { email, password } = req.body;
+router.post("/login", async (req, res) => {
     try {
-        const user = User.findOne({ email }).lean();
+        const { email, password } = req.body;
+        const user = await User.findOne({ email: email }).lean();
         if (user === null) {
-            res.send({
+            return res.send({
                 message: "That email is not registered.",
             });
         }
         bcrypt.compare(password, user.password, (err, isMatch) => {
-            if (err) throw err;
+            if (err)
+                return res.status(401).send({
+                    success: false,
+                    message: "Some credentials are missing",
+                    error: err.message,
+                });
             if (isMatch) {
                 const token = jwt.sign(
                     { _id: user._id },
@@ -200,10 +208,11 @@ router.get(
     async (req, res) => {
         try {
             const user = await User.findOne({ _id: req.user._id }).lean();
+            const { username, firstName, lastName } = user;
             const data = {
-                username: user.username,
-                firstname: user.firstName,
-                lastname: user.lastName,
+                username,
+                firstName,
+                lastName,
             };
             res.status(200).send({
                 success: true,
@@ -247,12 +256,5 @@ router.patch(
         }
     }
 );
-
-// @desc Logout page
-// @route GET /user/logout
-// @access Private
-router.get("/logout", (req, res) => {
-    res.send({ message: "User Logged Out", success: true });
-});
 
 module.exports = router;
