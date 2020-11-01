@@ -24,24 +24,24 @@ router.get("/", async (req, res) => {
  *              description: A successful response
  */
 
-router.get("/dashboard", async (req, res) => {
-    try {
-        const { storyId } = req.params;
-        const storyData = await Story.find({ 
-             visibility: "public"})
-            .lean();
-            console.log(storyData);
-        res.status(200).send({
-            message: "Public stories data",
-            stories: storyData,
-        });
-    } catch (err) {
-        res.status(500).send({
-            message: "Internal Server Error",
-            error: err.message,
-        });
+router.get(
+    "/dashboard",
+    async (req, res) => {
+        try {
+            const storyData = await Story.find({
+                visibility: "public",
+            }).lean();
+            res.status(200).send({
+                message: "Public stories data",
+                stories: storyData,
+            });
+        } catch (err) {
+            res.status(500).send({
+                message: "Internal Server Error",
+                error: err.message,
+            });
+        }
     }
-}
     // try {
     //     res.send("fetch all public stories data (make sure to pass story ids)");
     // } catch (err) {
