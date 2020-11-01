@@ -43,7 +43,7 @@ router.post(
 // @route POST /create/story/:storyId/chapter
 // @access Private
 router.post(
-    "/:storyId/chapter",
+    "/story/:storyId/chapter",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
