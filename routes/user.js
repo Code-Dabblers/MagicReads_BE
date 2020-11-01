@@ -7,7 +7,6 @@ const Story = require("../models/Story");
 const BCRYPT_SALT_ROUNDS = 12;
 const User = require("../models/User");
 
-
 // @desc Register page
 // @route POST /user/register
 // @access Public
@@ -95,20 +94,23 @@ router.post("/login", async (req, res) => {
 });
 
 // @desc Add story to User's Reading List
-// @route PUT /user/:storyId/readingList
+// @route PATCH /user/:storyId/readingList
 // @access Private
-router.put(
+router.patch(
     "/:storyId/readingList",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
             const { storyId } = req.params;
-            const story = await Story.findByIdAndUpdate(storyId, {
-                $addToSet: { "readingList.list": story._id },
-            }).lean();
+            await User.findByIdAndUpdate(
+                req.user._id,
+                { $addToSet: { "readingList.list": storyId } },
+                { new: true }
+            ).populate;
             res.status(200).send({
+                success: true,
                 message: "Story Added to the reading list",
-                storyId: story._id,
+                storyId: storyId,
             });
         } catch (err) {
             res.status(500).send({
@@ -134,7 +136,7 @@ router.get(
             res.status(200).send({
                 success: true,
                 message: "Reading List Found",
-                readingList: userData.readingList,
+                readingList: userData.readingList.list,
             });
         } catch (err) {
             res.status(500).send({
@@ -147,21 +149,21 @@ router.get(
 );
 
 // @desc Add story to User's Library
-// @route POST /user/:storyId/readingList
+// @route PATCH /user/:storyId/readingList
 // @access Private/Public
-router.put(
+router.patch(
     "/:storyId/library",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
             const { storyId } = req.params;
-            const story = await Story.findByIdAndUpdate(storyId, {
-                $addToSet: { "library.list": story._id },
+            await User.findByIdAndUpdate(req.user._id, {
+                $addToSet: { "library.list": storyId },
             }).lean();
             res.status(200).send({
                 success: true,
-                message: "Story Added to the reading list",
-                storyId: story._id,
+                message: "Story Added to the library list",
+                storyId: storyId,
             });
         } catch (err) {
             res.status(500).send({
@@ -187,7 +189,7 @@ router.get(
             res.status(200).send({
                 success: true,
                 message: "Library Found",
-                readingList: userData.readingList,
+                library: userData.library.list,
             });
         } catch (err) {
             res.status(500).send({
@@ -239,7 +241,15 @@ router.patch(
         try {
             const { username, firstName, lastName } = req.body;
             const dataObj = {};
-            if (username) dataObj.username = username;
+            if (username) {
+                const user = await User.findOne({ username: username }).lean();
+                if (user.username === username)
+                    return res.status(409).send({
+                        success: false,
+                        message: "Username already exists",
+                    });
+                dataObj.username = username;
+            }
             if (firstName) dataObj.firstName = firstName;
             if (lastName) dataObj.lastName = lastName;
             await User.findByIdAndUpdate(req.user._id, {
