@@ -7,12 +7,6 @@ const Story = require("../models/Story");
 const BCRYPT_SALT_ROUNDS = 12;
 const User = require("../models/User");
 
-// @desc Landing page
-// @route GET /user
-// @access Private
-router.get("/", (req, res) => {
-    res.send("user dashboard");
-});
 
 // @desc Register page
 // @route POST /user/register
@@ -48,6 +42,7 @@ router.post("/register", async (req, res) => {
         }
     } catch (err) {
         res.status(500).send({
+            success: false,
             message: "Internal Server Error",
             error: err.message,
         });
@@ -92,6 +87,7 @@ router.post("/login", async (req, res) => {
         });
     } catch (err) {
         res.status(500).send({
+            success: false,
             message: "Internal Server Error",
             error: err.message,
         });
@@ -116,6 +112,7 @@ router.put(
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -141,6 +138,7 @@ router.get(
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -167,6 +165,7 @@ router.put(
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -192,6 +191,7 @@ router.get(
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -221,6 +221,7 @@ router.get(
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -250,6 +251,7 @@ router.patch(
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
