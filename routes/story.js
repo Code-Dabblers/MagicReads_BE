@@ -45,7 +45,7 @@ router.get(
                         res.status(404).send({ message: "Invalid story Id" });
                     return story;
                 }
-            ).lean();
+            );
 
             res.send({ storyData: stories, message: "Story Found" });
         } catch (err) {
@@ -187,6 +187,7 @@ router.get("/:storyId/chapter/:chapterId", (req, res) => {
  *          "500":
  *              description: Unhandled error scenario has occured
  */
+
 router.post(
     "/:storyId/chapter/:chapterId/comment",
     passport.authenticate("jwt", { session: false }),
