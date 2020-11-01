@@ -36,18 +36,16 @@ const express = require("express"),
  *          "500":
  *              description: Unhandled error scenario has occured
  */
-router.get("/:query?", async (req, res) => {
+router.get("/:query", async (req, res) => {
     const { query } = req.params;
-    const { tags } = req.query;
-    await Story.find(
-        {
-            $or: [
-                { tags: { $in: tags ? tags : [] } },
-                { $text: { $search: query ? query : "" } },
-            ],
-        },
-        { score: { $meta: "textScore" } }
-    )
+    let tags = query.split(" ");
+    const newTags = tags.map((tag) => {
+        if (tag.indexOf("#") !== -1) {
+            return tag.slice(1);
+        }
+        return tag;
+    });
+    await Story.find({ tags: { $in: newTags } })
         .populate({ path: "chapters", model: Chapter })
         .then((stories) => {
             if (stories.length === 0) res.send({ message: "NO STORY FOUND" });
