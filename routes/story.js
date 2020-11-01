@@ -57,6 +57,7 @@ router.get(
             );
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -117,6 +118,7 @@ router.patch(
             );
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -177,6 +179,48 @@ router.get("/:storyId/chapter/:chapterId", async (req, res) => {
         );
     } catch (err) {
         res.status(500).send({
+            success: false,
+            message: "Internal Server Error",
+            error: err.message,
+        });
+    }
+});
+
+/**
+ * @swagger
+ * /story/{storyId}/chapter/{chapterId}:
+ *  delete:
+ *      tags:
+ *      -  "story"
+ *      description: Delete the chapter of the story id and chapter id
+ *      produces:
+ *      -   "application/json"
+ *      parameters:
+ *      - name: storyId
+ *        description: ID of the story find the chapter from
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      - name: chapterId
+ *        description: ID of the chapter to find and return
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      responses:
+ *          "200":
+ *              description: A successful response
+ *          "404":
+ *              description: Story id or chapter id passed is not valid or found
+ *          "500":
+ *              description: Unhandled error scenario has occured
+ */
+router.delete("/:storyId/chapter/:chapterId", (req, res) => {
+    const { storyId, chapterId } = req.params;
+    try {
+        Chapter.findOneAndDelete({ _id: chapterId });
+    } catch (err) {
+        res.status(500).send({
+            success: false,
             message: "Internal Server Error",
             error: err.message,
         });
@@ -241,6 +285,7 @@ router.post(
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -317,6 +362,7 @@ router.patch(
             );
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });

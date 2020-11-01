@@ -52,8 +52,8 @@ router.get("/:query", async (req, res) => {
         });
     } catch (err) {
         res.status(500).send({
-            message: "Failed: to search via query",
             success: false,
+            message: "Failed: to search via query",
             error: err.message,
         });
     }

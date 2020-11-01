@@ -22,10 +22,10 @@ router.patch(
                     message: "Story with this ID is not found",
                 });
             const successMsg = "Story details have been edited";
-            console.log(successMsg);
-            res.send({ message: successMsg });
+            res.send({ success: true, message: successMsg });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -52,10 +52,10 @@ router.patch(
                     message: "Invalid Story or Chapter ID",
                 });
             const successMsg = "Chapter details have been edited";
-            console.log(successMsg);
-            res.send({ message: successMsg });
+            res.send({ success: true, message: successMsg });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });

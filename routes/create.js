@@ -23,12 +23,14 @@ router.post(
                 { $push: { myStories: story._id } }
             );
             res.status(200).send({
+                success: true,
                 message: "Story Created",
                 storyId: story._id,
                 storyData: story,
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
@@ -57,12 +59,14 @@ router.post(
                 $push: { chapters: chapter._id },
             });
             res.send({
+                success: true,
                 message: "Chapter has been created",
                 chapterId: chapter._id,
                 chapter,
             });
         } catch (err) {
             res.status(500).send({
+                success: false,
                 message: "Internal Server Error",
                 error: err.message,
             });
