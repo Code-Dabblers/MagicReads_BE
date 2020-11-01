@@ -193,6 +193,10 @@ router.delete("/:storyId/chapter/:chapterId", async (req, res) => {
     try {
         const { storyId, chapterId } = req.params;
         const chapter = await Chapter.findOne({ _id: chapterId }).lean();
+        if (!chapter)
+            return res
+                .status(401)
+                .send({ success: false, message: "Chapter does not exist" });
         await Comment.deleteMany({ _id: { $all: chapter.comments } });
         await Story.findByIdAndUpdate(storyId, {
             $pull: { chapters: chapterId },
