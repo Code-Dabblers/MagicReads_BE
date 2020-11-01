@@ -135,6 +135,10 @@ app.use("/story", require("./routes/story.js"));
 app.use("/create", require("./routes/create.js"));
 app.use("/edit", require("./routes/edit.js"));
 
+app.use("/", (req, res, next) => {
+    res.status("404").json({ message: "Route Not found" });
+});
+
 // Port
 const PORT = process.env.PORT || 8000;
 

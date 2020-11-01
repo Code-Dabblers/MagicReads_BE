@@ -13,7 +13,7 @@ const express = require("express"),
  *  get:
  *      tags:
  *      -  "search"
- *      description: Get the story based on query parameters & tags
+ *      description: Get the story based on tags
  *      produces:
  *      -   "application/json"
  *      parameters:
@@ -22,12 +22,6 @@ const express = require("express"),
  *              in: "path"
  *              type: "string"
  *              required: true
- *            - in: query
- *              name: tags
- *              description: Type any tags of the stories for eg horror
- *              type: "string"
- *              required: false
- *
  *      responses:
  *          "200":
  *              description: A successful response
@@ -36,30 +30,35 @@ const express = require("express"),
  *          "500":
  *              description: Unhandled error scenario has occured
  */
-router.get("/:query?", async (req, res) => {
-    const { query } = req.params;
-    const { tags } = req.query;
-    await Story.find(
-        {
-            $or: [
-                { tags: { $in: tags ? tags : [] } },
-                { $text: { $search: query ? query : "" } },
-            ],
-        },
-        { score: { $meta: "textScore" } }
-    )
-        .populate({ path: "chapters", model: Chapter })
-        .then((stories) => {
-            if (stories.length === 0) res.send({ message: "NO STORY FOUND" });
-            else res.send({ storyData: stories, message: "Stories Found" });
-        })
-        .catch((err) => {
-            res.status(500).send({
-                message: "Failed: to search via query",
-                success: true,
-                error: err.message,
-            });
+router.get("/:query", async (req, res) => {
+    try {
+        const { query } = req.params;
+        let tags = query.split(" ");
+        const newTags = tags.map((tag) => {
+            if (tag.indexOf("#") !== -1) {
+                return tag.slice(1);
+            }
+            return tag;
         });
+        const stories = await Story.find({
+            $and: [{ tags: { $in: newTags } }, { visibility: "public" }],
+        })
+            .populate({ path: "chapters", model: Chapter })
+            .lean();
+        if (stories.length === 0)
+            return res.send({ message: "NO STORY FOUND" });
+        res.send({
+            success: true,
+            message: "Stories Found",
+            storyData: stories,
+        });
+    } catch (err) {
+        res.status(500).send({
+            success: false,
+            message: "Failed: to search via query",
+            error: err.message,
+        });
+    }
 });
 
 module.exports = router;
