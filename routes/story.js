@@ -100,7 +100,6 @@ router.delete("/:storyId", async (req, res) => {
 
         const chapterData = await Chapter.deleteMany({ storyId });
         const commentData = await Comment.deleteMany({ storyId });
-        console.log(storyData, chapterData, commentData);
         console.log("Story with given ID has been deleted");
         res.status(200).send({
             message: "Story with given ID has been deleted",
