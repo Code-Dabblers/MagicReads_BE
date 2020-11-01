@@ -106,7 +106,7 @@ router.patch(
                 req.user._id,
                 { $addToSet: { "readingList.list": storyId } },
                 { new: true }
-            ).populate;
+            );
             res.status(200).send({
                 success: true,
                 message: "Story Added to the reading list",
