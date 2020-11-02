@@ -94,9 +94,9 @@ router.post("/login", async (req, res) => {
 });
 
 // @desc Add story to User's Reading List
-// @route PATCH /user/:storyId/readingList
+// @route PUT /user/:storyId/readingList
 // @access Private
-router.patch(
+router.put(
     "/:storyId/readingList",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
@@ -155,9 +155,9 @@ router.get(
 );
 
 // @desc Add story to User's Library
-// @route PATCH /user/:storyId/readingList
+// @route PUT /user/:storyId/readingList
 // @access Private/Public
-router.patch(
+router.put(
     "/:storyId/library",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
