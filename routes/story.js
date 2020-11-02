@@ -90,13 +90,13 @@ router.delete(
     async (req, res) => {
         const { storyId } = req.params;
         try {
-            const storyData = await Story.deleteOne({ _id: storyId });
-            if (!storyData)
+            const story = await Story.findById(storyId);
+            if (!story)
                 return res.status(404).send({ message: "Invalid story Id" });
 
+            await Story.deleteOne({ _id: storyId });
             await Chapter.deleteMany({ storyId });
             await Comment.deleteMany({ storyId });
-            console.log("Story with given ID has been deleted");
             res.status(200).send({
                 message: "Story with given ID has been deleted",
             });
@@ -156,7 +156,7 @@ router.put(
                 });
             await Story.findByIdAndUpdate(req.params.storyId, {
                 $push: { votedBy: req.user._id },
-            }).lean();
+            });
             res.status(200).send({
                 success: true,
                 message: "You have voted for this story",
@@ -216,7 +216,7 @@ router.delete(
                 });
             await Story.findByIdAndUpdate(req.params.storyId, {
                 $pull: { votedBy: req.user._id },
-            }).lean();
+            });
             res.status(200).send({
                 success: true,
                 message: "You have removed your vote for this story",
@@ -313,11 +313,15 @@ router.get("/:storyId/chapter/:chapterId", async (req, res) => {
 router.delete("/:storyId/chapter/:chapterId", async (req, res) => {
     try {
         const { storyId, chapterId } = req.params;
-        const chapter = await Chapter.findOne({ _id: chapterId }).lean();
+        const chapter = await Chapter.findOne({
+            _id: chapterId,
+            storyId,
+        }).lean();
         if (!chapter)
-            return res
-                .status(401)
-                .send({ success: false, message: "Chapter does not exist" });
+            return res.status(401).send({
+                success: false,
+                message: "Invalid Story or Chapter ID",
+            });
         await Comment.deleteMany({ chapterId });
         await Story.findByIdAndUpdate(storyId, {
             $pull: { chapters: chapterId },
@@ -339,7 +343,7 @@ router.delete("/:storyId/chapter/:chapterId", async (req, res) => {
 /**
  * @swagger
  * /story/{storyId}/chapter/{chapterId}/comment:
- *  post:
+ *  put:
  *      tags:
  *      -  "story"
  *      description: Add comment on a chapter
@@ -367,7 +371,7 @@ router.delete("/:storyId/chapter/:chapterId", async (req, res) => {
  *              description: Unhandled error scenario has occured
  */
 
-router.post(
+router.put(
     "/:storyId/chapter/:chapterId/comment",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
@@ -376,9 +380,14 @@ router.post(
             const { username, _id: userId } = req.user;
             const { comment } = req.body;
             const dataObj = { storyId, chapterId, comment, username, userId };
-            const chapter = await Chapter.findById(chapterId).lean();
+            const chapter = await Chapter.findOne({
+                _id: chapterId,
+                storyId,
+            }).lean();
             if (!chapter)
-                return res.status(404).send({ message: "Invalid chapter Id" });
+                return res
+                    .status(404)
+                    .send({ message: "Invalid Chapter or Story ID" });
             const commentData = await Comment.create(dataObj);
             await Chapter.updateOne(
                 { _id: chapterId },

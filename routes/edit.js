@@ -13,13 +13,13 @@ router.put(
     async (req, res) => {
         try {
             const { storyId } = req.params;
-            const data = await Story.findOneAndUpdate(
+            const story = await Story.findOneAndUpdate(
                 { _id: storyId },
                 req.body
             ).lean();
-            if (!data)
+            if (!story)
                 return res.status(404).send({
-                    message: "Story with this ID is not found",
+                    message: "Invalid story ID",
                 });
             const successMsg = "Story details have been edited";
             res.send({ success: true, message: successMsg });
