@@ -17,11 +17,17 @@ router.post("/register", async (req, res) => {
         const { email, password, firstName, lastName, username } = req.body;
         const user = await User.findOne({ email }).lean();
         if (user) {
-            res.status(201).send({
+            return res.status(201).send({
                 success: false,
                 data: "User with this email already exists",
             });
         } else {
+            const usernameExists = await User.findOne({ username });
+            if (usernameExists)
+                return res.status(409).send({
+                    success: false,
+                    message: "Username already exists",
+                });
             const hashedPassword = await bcrypt.hash(
                 password,
                 BCRYPT_SALT_ROUNDS
@@ -107,7 +113,7 @@ router.put(
     async (req, res) => {
         try {
             const { storyId } = req.params;
-            const story = await Story.findOne({ id: storyId }).lean();
+            const story = await Story.findById(storyId).lean();
             if (!story)
                 return res
                     .status(401)
@@ -168,9 +174,15 @@ router.put(
     async (req, res) => {
         try {
             const { storyId } = req.params;
+            const story = await Story.findById(storyId).lean();
+            if (!story)
+                return res
+                    .status(401)
+                    .send({ success: false, message: "Invalid story ID" });
+
             await User.findByIdAndUpdate(req.user._id, {
                 $addToSet: { "library.list": storyId },
-            }).lean();
+            });
             res.status(200).send({
                 success: true,
                 message: "Story Added to the library list",
@@ -220,8 +232,7 @@ router.get(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
-            const user = await User.findOne({ _id: req.user._id }).lean();
-            const { username, firstName, lastName } = user;
+            const { username, firstName, lastName } = req.user;
             const data = {
                 username,
                 firstName,
