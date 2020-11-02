@@ -20,7 +20,6 @@
     "homepage": "https://github.com/Code-Dabblers/MagicReads_BE#readme",
     "devDependencies": {
         "cross-env": "^7.0.2",
-        "nanoid": "^3.1.12",
         "nodemon": "^2.0.4"
     },
     "dependencies": {
@@ -41,6 +40,7 @@
         "mongoose": "^5.10.8",
         "mongoose-float": "^1.0.4",
         "morgan": "^1.10.0",
+        "nanoid": "^3.1.16",
         "npm": "^6.14.8",
         "passport": "^0.4.1",
         "passport-jwt": "^4.0.0",
