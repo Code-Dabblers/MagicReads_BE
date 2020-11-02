@@ -3,9 +3,11 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const passport = require("passport");
-const Story = require("../models/Story");
-const BCRYPT_SALT_ROUNDS = 12;
 const User = require("../models/User");
+const Story = require("../models/Story");
+const Chapter = require("../models/Chapter");
+const Comment = require("../models/Comment");
+const BCRYPT_SALT_ROUNDS = 12;
 
 // @desc Register page
 // @route POST /user/register
@@ -31,7 +33,9 @@ router.post("/register", async (req, res) => {
                 firstName,
                 lastName,
             });
-            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+                expiresIn: Math.floor(Date.now() / 1000) + 36 * 60 * 60,
+            });
             res.status(200).send({
                 success: true,
                 auth: true,
@@ -70,7 +74,8 @@ router.post("/login", async (req, res) => {
             if (isMatch) {
                 const token = jwt.sign(
                     { _id: user._id },
-                    process.env.JWT_SECRET
+                    process.env.JWT_SECRET,
+                    { expiresIn: Math.floor(Date.now() / 1000) + 36 * 60 * 60 }
                 );
                 res.status(200).send({
                     success: true,
@@ -94,9 +99,9 @@ router.post("/login", async (req, res) => {
 });
 
 // @desc Add story to User's Reading List
-// @route PATCH /user/:storyId/readingList
+// @route PUT /user/:storyId/readingList
 // @access Private
-router.patch(
+router.put(
     "/:storyId/readingList",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
@@ -155,9 +160,9 @@ router.get(
 );
 
 // @desc Add story to User's Library
-// @route PATCH /user/:storyId/readingList
+// @route PUT /user/:storyId/readingList
 // @access Private/Public
-router.patch(
+router.put(
     "/:storyId/library",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
@@ -238,9 +243,9 @@ router.get(
 );
 
 // @desc User Settings
-// @route PATCH /user/settings
+// @route PUT /user/settings
 // @access Private
-router.patch(
+router.put(
     "/settings",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
@@ -264,6 +269,32 @@ router.patch(
             res.status(200).send({
                 success: true,
                 message: "Updated user settings",
+            });
+        } catch (err) {
+            res.status(500).send({
+                success: false,
+                message: "Internal Server Error",
+                error: err.message,
+            });
+        }
+    }
+);
+
+// @desc Login page
+// @route DELETE /user/delete
+// @access Private
+router.delete(
+    "/delete",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        try {
+            await Comment.deleteMany({ storyId: { $in: stories.myStories } });
+            await Chapter.deleteMany({ storyId: { $in: stories.myStories } });
+            await Story.deleteMany({ _id: { $in: stories.myStories } });
+            await User.deleteOne({ _id: req.user._id });
+            res.status(200).send({
+                success: true,
+                message: "User deleted successfully",
             });
         } catch (err) {
             res.status(500).send({

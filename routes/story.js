@@ -94,8 +94,8 @@ router.delete(
             if (!storyData)
                 return res.status(404).send({ message: "Invalid story Id" });
 
-            const chapterData = await Chapter.deleteMany({ storyId });
-            const commentData = await Comment.deleteMany({ storyId });
+            await Chapter.deleteMany({ storyId });
+            await Comment.deleteMany({ storyId });
             console.log("Story with given ID has been deleted");
             res.status(200).send({
                 message: "Story with given ID has been deleted",
@@ -114,10 +114,10 @@ router.delete(
 /**
  * @swagger
  * /story/{storyId}/vote:
- *  patch:
+ *  put:
  *      tags:
  *      -  "story"
- *      description: Update Vote on a story
+ *      description: Add the Vote on a story
  *      security:
  *      - bearerAuth: []
  *      produces:
@@ -136,22 +136,90 @@ router.delete(
  *          "500":
  *              description: Unhandled error scenario has occured
  */
-router.patch(
+router.put(
     "/:storyId/vote",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
-            const story = await Story.findByIdAndUpdate(req.params.storyId, {
-                $inc: { voteCount: 1 },
-            }).lean();
+            const { storyId } = req.params;
+            console.log(storyId);
+            const story = await Story.findById(storyId).lean();
             if (!story)
                 res.status(404).send({
                     success: false,
                     message: "Invalid story ID",
                 });
+            if (story.votedBy.indexOf(req.user._id) !== -1)
+                return res.status(409).send({
+                    success: false,
+                    message: "User already voted for this story",
+                });
+            await Story.findByIdAndUpdate(req.params.storyId, {
+                $push: { votedBy: req.user._id },
+            }).lean();
             res.status(200).send({
                 success: true,
-                message: "Story vote counter has been increased",
+                message: "You have voted for this story",
+            });
+        } catch (err) {
+            res.status(500).send({
+                success: false,
+                message: "Internal Server Error",
+                error: err.message,
+            });
+        }
+    }
+);
+
+/**
+ * @swagger
+ * /story/{storyId}/vote:
+ *  delete:
+ *      tags:
+ *      -  "story"
+ *      description: Delete the Vote on a story
+ *      security:
+ *      - bearerAuth: []
+ *      produces:
+ *      -   "application/json"
+ *      parameters:
+ *      - name: storyId
+ *        description: ID of the story to vote and return
+ *        in: "path"
+ *        type: "string"
+ *        required: true
+ *      responses:
+ *          "200":
+ *              description: A successful response
+ *          "404":
+ *              description: Story with the passed id is not found
+ *          "500":
+ *              description: Unhandled error scenario has occured
+ */
+router.delete(
+    "/:storyId/vote",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        try {
+            const { storyId } = req.params;
+            console.log(storyId);
+            const story = await Story.findById(storyId).lean();
+            if (!story)
+                res.status(404).send({
+                    success: false,
+                    message: "Invalid story ID",
+                });
+            if (story.votedBy.indexOf(req.user._id) === -1)
+                return res.status(409).send({
+                    success: false,
+                    message: "User have not voted for this story ever",
+                });
+            await Story.findByIdAndUpdate(req.params.storyId, {
+                $pull: { votedBy: req.user._id },
+            }).lean();
+            res.status(200).send({
+                success: true,
+                message: "You have removed your vote for this story",
             });
         } catch (err) {
             res.status(500).send({
@@ -254,9 +322,6 @@ router.delete("/:storyId/chapter/:chapterId", async (req, res) => {
         await Story.findByIdAndUpdate(storyId, {
             $pull: { chapters: chapterId },
         });
-        await Story.findByIdAndUpdate(storyId, {
-            $inc: { totalChapters: -1 },
-        });
         await Chapter.deleteOne({ _id: chapterId });
         res.status(200).send({
             success: true,
@@ -311,6 +376,9 @@ router.post(
             const { username, _id: userId } = req.user;
             const { comment } = req.body;
             const dataObj = { storyId, chapterId, comment, username, userId };
+            const chapter = await Chapter.findById(chapterId).lean();
+            if (!chapter)
+                return res.status(404).send({ message: "Invalid chapter Id" });
             const commentData = await Comment.create(dataObj);
             await Chapter.updateOne(
                 { _id: chapterId },
@@ -333,7 +401,7 @@ router.post(
 /**
  * @swagger
  * /story/{storyId}/chapter/{chapterId}/comment/{commentId}:
- *  patch:
+ *  delete:
  *      tags:
  *      -  "story"
  *      description: Delete comment on a chapter
@@ -365,12 +433,13 @@ router.post(
  *          "500":
  *              description: Unhandled error scenario has occured
  */
-router.patch(
+router.delete(
     "/:storyId/chapter/:chapterId/comment/:commentId",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
             const { storyId, chapterId, commentId } = req.params;
+            const story = await Story.findOne({ _id: storyId }).lean();
             const comment = await Comment.findOneAndDelete({
                 _id: commentId,
             }).lean();
@@ -379,10 +448,10 @@ router.patch(
                 { $pull: { comments: commentId } },
                 { new: true }
             ).lean();
-            if (!chapter || !comment) {
+            if (!chapter || !comment || !story) {
                 return res.status(404).send({
                     success: false,
-                    message: "Invalid Comment or Chapter ID",
+                    message: "Invalid Story, Comment or Chapter ID",
                 });
             }
             res.send({

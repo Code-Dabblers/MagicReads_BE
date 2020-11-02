@@ -7,7 +7,7 @@ const passport = require("passport");
 // @desc Edit story details
 // @route PUT /edit/story/:storyID/details
 // @access Private
-router.patch(
+router.put(
     "/story/:storyId/details",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
@@ -34,9 +34,9 @@ router.patch(
 );
 
 // @desc Edit chapter of a story
-// @route Get /edit/story/:storyID/details
+// @route PUT /edit/story/:storyID/details
 // @access Private
-router.patch(
+router.put(
     "/story/:storyId/chapter/:chapterId/details",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
