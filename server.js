@@ -140,7 +140,7 @@ app.use("/", (req, res, next) => {
 });
 
 // Port
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8000;
 
 // Server Listening
 app.listen(PORT, () =>
