@@ -254,9 +254,6 @@ router.delete("/:storyId/chapter/:chapterId", async (req, res) => {
         await Story.findByIdAndUpdate(storyId, {
             $pull: { chapters: chapterId },
         });
-        await Story.findByIdAndUpdate(storyId, {
-            $inc: { totalChapters: -1 },
-        });
         await Chapter.deleteOne({ _id: chapterId });
         res.status(200).send({
             success: true,

@@ -58,9 +58,6 @@ router.post(
             await Story.findByIdAndUpdate(storyId, {
                 $push: { chapters: chapter._id },
             });
-            await Story.findByIdAndUpdate(storyId, {
-                $inc: { totalChapters: 1 },
-            });
 
             res.send({
                 success: true,

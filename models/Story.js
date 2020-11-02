@@ -7,7 +7,6 @@ const storySchema = new mongoose.Schema({
     summary: { type: String, required: true },
     storyName: { type: String, required: true },
     tags: [{ type: String }],
-    totalChapters: { type: Number, default: 0 },
     voteCount: { type: Number, default: 0 },
     cover: { type: String },
     genre: { type: String, required: true },
