@@ -31,7 +31,9 @@ router.post("/register", async (req, res) => {
                 firstName,
                 lastName,
             });
-            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+                expiresIn: Math.floor(Date.now() / 1000) + 36 * 60 * 60,
+            });
             res.status(200).send({
                 success: true,
                 auth: true,
@@ -70,7 +72,8 @@ router.post("/login", async (req, res) => {
             if (isMatch) {
                 const token = jwt.sign(
                     { _id: user._id },
-                    process.env.JWT_SECRET
+                    process.env.JWT_SECRET,
+                    { expiresIn: Math.floor(Date.now() / 1000) + 36 * 60 * 60 }
                 );
                 res.status(200).send({
                     success: true,
@@ -272,6 +275,20 @@ router.put(
                 error: err.message,
             });
         }
+    }
+);
+
+// @desc Login page
+// @route DELETE /user/delete
+// @access Private
+router.delete(
+    "/delete",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        // delete comments created by that user
+        // delete stories created by that user
+        // delete chapters created by that user
+        // delete User
     }
 );
 
