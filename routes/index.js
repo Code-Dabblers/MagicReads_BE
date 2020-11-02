@@ -27,6 +27,12 @@ router.get("/stories", async (req, res) => {
         const storyData = await Story.find({
             visibility: "public",
         }).lean();
+        if (storyData.length === 0)
+            return res.status(200).send({
+                success: true,
+                message: "No public stories",
+                stories: storyData,
+            });
         res.status(200).send({
             success: true,
             message: "Public stories data",
