@@ -238,9 +238,9 @@ router.get(
 );
 
 // @desc User Settings
-// @route PATCH /user/settings
+// @route PUT /user/settings
 // @access Private
-router.patch(
+router.put(
     "/settings",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
