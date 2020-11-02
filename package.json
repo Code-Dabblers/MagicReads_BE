@@ -2,10 +2,10 @@
     "name": "magicreads",
     "version": "1.0.0",
     "description": "MagicReads is a web app for those who love to read and write and share their stories with the world. This repo is for the Backend of the app.",
-    "main": "app.js",
+    "main": "server.js",
     "scripts": {
         "dev": "cross-env NODE_ENV=development nodemon server",
-        "build": "cross-env NODE_ENV=production node server"
+        "start": "node server.js"
     },
     "repository": {
         "type": "git",
