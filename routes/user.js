@@ -288,7 +288,6 @@ router.delete(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
-            const stories = await User.findById(req.user._id).lean();
             await Comment.deleteMany({ storyId: { $in: stories.myStories } });
             await Chapter.deleteMany({ storyId: { $in: stories.myStories } });
             await Story.deleteMany({ _id: { $in: stories.myStories } });
