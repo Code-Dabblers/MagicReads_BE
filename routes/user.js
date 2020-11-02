@@ -14,7 +14,13 @@ const BCRYPT_SALT_ROUNDS = 12;
 // @access Public
 router.post("/register", async (req, res) => {
     try {
-        const { email, password, firstName, lastName, username } = req.body;
+        const {
+            email,
+            password,
+            firstName,
+            lastName,
+            username,
+        } = req.body;
         const user = await User.findOne({ email }).lean();
         if (user) {
             return res.status(201).send({
@@ -22,7 +28,9 @@ router.post("/register", async (req, res) => {
                 data: "User with this email already exists",
             });
         } else {
-            const usernameExists = await User.findOne({ username });
+            const usernameExists = await User.findOne({
+                username,
+            });
             if (usernameExists)
                 return res.status(409).send({
                     success: false,
@@ -39,9 +47,15 @@ router.post("/register", async (req, res) => {
                 firstName,
                 lastName,
             });
-            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-                expiresIn: Math.floor(Date.now() / 1000) + 36 * 60 * 60,
-            });
+            const token = jwt.sign(
+                { _id: user._id },
+                process.env.JWT_SECRET,
+                {
+                    expiresIn:
+                        Math.floor(Date.now() / 1000) +
+                        36 * 60 * 60,
+                }
+            );
             res.status(200).send({
                 success: true,
                 auth: true,
@@ -64,37 +78,50 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email: email }).lean();
+        const user = await User.findOne({
+            email: email,
+        }).lean();
         if (user === null) {
             return res.send({
                 message: "That email is not registered.",
             });
         }
-        bcrypt.compare(password, user.password, (err, isMatch) => {
-            if (err)
-                return res.status(401).send({
-                    success: false,
-                    message: "Some credentials are missing",
-                    error: err.message,
-                });
-            if (isMatch) {
-                const token = jwt.sign(
-                    { _id: user._id },
-                    process.env.JWT_SECRET,
-                    { expiresIn: Math.floor(Date.now() / 1000) + 36 * 60 * 60 }
-                );
-                res.status(200).send({
-                    success: true,
-                    auth: true,
-                    token: token,
-                    message: "User found & logged in",
-                });
-            } else {
-                res.send({
-                    message: "Incorrect Password",
-                });
+        bcrypt.compare(
+            password,
+            user.password,
+            (err, isMatch) => {
+                if (err)
+                    return res.status(401).send({
+                        success: false,
+                        message:
+                            "Some credentials are missing",
+                        error: err.message,
+                    });
+                if (isMatch) {
+                    const token = jwt.sign(
+                        { _id: user._id },
+                        process.env.JWT_SECRET,
+                        {
+                            expiresIn:
+                                Math.floor(
+                                    Date.now() / 1000
+                                ) +
+                                36 * 60 * 60,
+                        }
+                    );
+                    res.status(200).send({
+                        success: true,
+                        auth: true,
+                        token: token,
+                        message: "User found & logged in",
+                    });
+                } else {
+                    res.send({
+                        message: "Incorrect Password",
+                    });
+                }
             }
-        });
+        );
     } catch (err) {
         res.status(500).send({
             success: false,
@@ -113,14 +140,21 @@ router.put(
     async (req, res) => {
         try {
             const { storyId } = req.params;
-            const story = await Story.findById(storyId).lean();
+            const story = await Story.findById(
+                storyId
+            ).lean();
             if (!story)
-                return res
-                    .status(401)
-                    .send({ success: false, message: "Invalid story ID" });
+                return res.status(401).send({
+                    success: false,
+                    message: "Invalid story ID",
+                });
             await User.findByIdAndUpdate(
                 req.user._id,
-                { $addToSet: { "readingList.list": storyId } },
+                {
+                    $addToSet: {
+                        "readingList.list": storyId,
+                    },
+                },
                 { new: true }
             );
 
@@ -147,8 +181,13 @@ router.get(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
-            const userData = await User.findOne({ _id: req.user._id })
-                .populate({ path: "readingList.list", model: "Story" })
+            const userData = await User.findOne({
+                _id: req.user._id,
+            })
+                .populate({
+                    path: "readingList.list",
+                    model: "Story",
+                })
                 .lean();
             res.status(200).send({
                 success: true,
@@ -174,11 +213,14 @@ router.put(
     async (req, res) => {
         try {
             const { storyId } = req.params;
-            const story = await Story.findById(storyId).lean();
+            const story = await Story.findById(
+                storyId
+            ).lean();
             if (!story)
-                return res
-                    .status(401)
-                    .send({ success: false, message: "Invalid story ID" });
+                return res.status(401).send({
+                    success: false,
+                    message: "Invalid story ID",
+                });
 
             await User.findByIdAndUpdate(req.user._id, {
                 $addToSet: { "library.list": storyId },
@@ -206,8 +248,13 @@ router.get(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
-            const userData = await User.findOne({ _id: req.user._id })
-                .populate({ path: "library.list", model: "Story" })
+            const userData = await User.findOne({
+                _id: req.user._id,
+            })
+                .populate({
+                    path: "library.list",
+                    model: "Story",
+                })
                 .lean();
             res.status(200).send({
                 success: true,
@@ -232,7 +279,11 @@ router.get(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
-            const { username, firstName, lastName } = req.user;
+            const {
+                username,
+                firstName,
+                lastName,
+            } = req.user;
             const data = {
                 username,
                 firstName,
@@ -261,11 +312,14 @@ router.put(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
-            const { username, firstName, lastName } = req.body;
+            const {
+                username,
+                firstName,
+                lastName,
+            } = req.body;
             const dataObj = {};
             if (username) {
-                const user = await User.findOne({ username: username }).lean();
-                if (user.username === username)
+                if (req.user.username === username)
                     return res.status(409).send({
                         success: false,
                         message: "Username already exists",
@@ -299,9 +353,16 @@ router.delete(
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
         try {
-            await Comment.deleteMany({ storyId: { $in: stories.myStories } });
-            await Chapter.deleteMany({ storyId: { $in: stories.myStories } });
-            await Story.deleteMany({ _id: { $in: stories.myStories } });
+            const stories = req.user.myStories;
+            await Comment.deleteMany({
+                storyId: { $in: stories },
+            });
+            await Chapter.deleteMany({
+                storyId: { $in: stories },
+            });
+            await Story.deleteMany({
+                _id: { $in: stories },
+            });
             await User.deleteOne({ _id: req.user._id });
             res.status(200).send({
                 success: true,

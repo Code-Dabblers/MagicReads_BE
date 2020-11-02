@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Story = require("../models/Story");
 const Chapter = require("../models/Chapter");
+const Comment = require("../models/Comment");
 const passport = require("passport");
 
 // @desc Edit story details

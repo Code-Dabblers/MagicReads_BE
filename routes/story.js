@@ -424,6 +424,7 @@ router.put(
             res.status(200).send({
                 success: true,
                 message: "Comment added successfully",
+                commentId: commentData._id,
             });
         } catch (err) {
             res.status(500).send({
@@ -477,7 +478,7 @@ router.delete(
         try {
             const { commentId } = req.params;
             const comment = await Comment.findByIdAndDelete(
-                commentId,
+                commentId
             ).lean();
             if (!comment)
                 return res.status(404).send({
