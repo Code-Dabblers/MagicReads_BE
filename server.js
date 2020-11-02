@@ -143,8 +143,7 @@ app.use("/", (req, res, next) => {
 const PORT = process.env.PORT || 8000;
 
 // Server Listening
-app.listen(
-    PORT,
+app.listen(PORT, () =>
     console.log(
         `MagicReads is running in ${process.env.NODE_ENV} mode on server ${PORT}`
     )
