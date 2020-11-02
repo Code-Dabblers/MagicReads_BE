@@ -231,7 +231,6 @@ router.delete(
     }
 );
 
-
 /**
  * @swagger
  * /story/{storyId}/chapter/{chapterId}:
@@ -377,6 +376,9 @@ router.post(
             const { username, _id: userId } = req.user;
             const { comment } = req.body;
             const dataObj = { storyId, chapterId, comment, username, userId };
+            const chapter = await Chapter.findById(chapterId).lean();
+            if (!chapter)
+                return res.status(404).send({ message: "Invalid chapter Id" });
             const commentData = await Comment.create(dataObj);
             await Chapter.updateOne(
                 { _id: chapterId },

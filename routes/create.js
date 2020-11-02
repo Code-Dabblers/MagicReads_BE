@@ -18,6 +18,7 @@ router.post(
             req.body.author.username = username;
             req.body.author.userId = _id;
             const story = await Story.create(req.body);
+
             await User.findByIdAndUpdate(_id, {
                 $push: { myStories: story._id },
             });
@@ -52,9 +53,10 @@ router.post(
             req.body.author.username = username;
             req.body.author.userId = _id;
             const { storyId } = req.params;
-
+            const story = await Story.findById(storyId).lean();
+            if (!story)
+                return res.status(404).send({ message: "Invalid story Id" });
             const chapter = await Chapter.create({ ...req.body, storyId });
-            if (!chapter) res.status(404).send({ message: "Invalid story Id" });
             await Story.findByIdAndUpdate(storyId, {
                 $push: { chapters: chapter._id },
             });

@@ -3,9 +3,11 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const passport = require("passport");
-const Story = require("../models/Story");
-const BCRYPT_SALT_ROUNDS = 12;
 const User = require("../models/User");
+const Story = require("../models/Story");
+const Chapter = require("../models/Chapter");
+const Comment = require("../models/Comment");
+const BCRYPT_SALT_ROUNDS = 12;
 
 // @desc Register page
 // @route POST /user/register
@@ -285,10 +287,23 @@ router.delete(
     "/delete",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
-        // delete comments created by that user
-        // delete stories created by that user
-        // delete chapters created by that user
-        // delete User
+        try {
+            const stories = await User.findById(req.user._id).lean();
+            await Comment.deleteMany({ storyId: { $in: stories.myStories } });
+            await Chapter.deleteMany({ storyId: { $in: stories.myStories } });
+            await Story.deleteMany({ _id: { $in: stories.myStories } });
+            await User.deleteOne({ _id: req.user._id });
+            res.status(200).send({
+                success: true,
+                message: "User deleted successfully",
+            });
+        } catch (err) {
+            res.status(500).send({
+                success: false,
+                message: "Internal Server Error",
+                error: err.message,
+            });
+        }
     }
 );
 
