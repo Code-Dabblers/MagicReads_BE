@@ -43,8 +43,31 @@ router.get(
             if (!story)
                 return res.status(404).send({
                     success: false,
-                    message: "Invalid story ID",
+                    message:
+                        "Invalid story ID or it's not a public story'",
                 });
+            if (story.visibility === "public")
+                return res.status(200).send({
+                    success: true,
+                    message:
+                        "The story details are fetched",
+                    story,
+                });
+
+            if (story.visibility === "private") {
+                if (story.author.userId === req.user._id)
+                    return res.status(200).send({
+                        success: true,
+                        message:
+                            "The story details are fetched",
+                        story,
+                    });
+
+                return res.status(200).send({
+                    success: false,
+                    message: "This story is private",
+                });
+            }
 
             res.send({
                 success: true,
