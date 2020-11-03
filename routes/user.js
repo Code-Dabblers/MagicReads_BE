@@ -204,6 +204,45 @@ router.get(
     }
 );
 
+// @desc Delete story from User's Reading List
+// @route DELETE /user/:storyId/readingList
+// @access Private
+router.delete(
+    "/:storyId/readingList",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        try {
+            const { storyId } = req.params;
+            const story = await Story.findById(
+                storyId
+            ).lean();
+            if (!story)
+                return res.status(401).send({
+                    success: false,
+                    message: "Invalid story ID",
+                });
+            await User.findByIdAndUpdate(req.user._id, {
+                $pull: {
+                    "readingList.list": storyId,
+                },
+            });
+
+            res.status(200).send({
+                success: true,
+                message:
+                    "Story deleted from the reading list",
+                storyId: storyId,
+            });
+        } catch (err) {
+            res.status(500).send({
+                success: false,
+                message: "Internal Server Error",
+                error: err.message,
+            });
+        }
+    }
+);
+
 // @desc Add story to User's Library
 // @route PUT /user/:storyId/readingList
 // @access Private/Public
@@ -228,6 +267,43 @@ router.put(
             res.status(200).send({
                 success: true,
                 message: "Story Added to the library list",
+                storyId: storyId,
+            });
+        } catch (err) {
+            res.status(500).send({
+                success: false,
+                message: "Internal Server Error",
+                error: err.message,
+            });
+        }
+    }
+);
+
+// @desc Delete story from User's Library
+// @route delete /user/:storyId/readingList
+// @access Private/Public
+router.delete(
+    "/:storyId/library",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+        try {
+            const { storyId } = req.params;
+            const story = await Story.findById(
+                storyId
+            ).lean();
+            if (!story)
+                return res.status(401).send({
+                    success: false,
+                    message: "Invalid story ID",
+                });
+
+            await User.findByIdAndUpdate(req.user._id, {
+                $pull: { "library.list": storyId },
+            });
+            res.status(200).send({
+                success: true,
+                message:
+                    "Story has been removed from the library list",
                 storyId: storyId,
             });
         } catch (err) {
